@@ -21,8 +21,6 @@ test:
   database: rails_test
 
 # Production configuration
+# Render provides DATABASE_URL, which Rails will use automatically
 production:
-  <<: *default
-  database: rails_production
-  username: <%= ENV["DATABASE_USERNAME"] || "postgres" %>
-  password: <%= ENV["DATABASE_PASSWORD"] || "123ediwow" %>
+  url: <%= ENV["DATABASE_URL"] %>
