@@ -1,0 +1,88 @@
+<% content_for :title, "Reservation Details - Restaurant Reservation System" %>
+
+<div class="page-header">
+  <h1>Reservation Details</h1>
+  <%= link_to "← Back to My Reservations", reservations_path, class: "btn btn-link" %>
+</div>
+
+<div class="reservation-details-container">
+  <div class="confirmation-banner <%= @reservation.status %>">
+    <h2>
+      <% if @reservation.status == 'confirmed' %>
+        ✅ Reservation Confirmed
+      <% elsif @reservation.status == 'pending' %>
+        ⏳ Reservation Pending
+      <% elsif @reservation.status == 'cancelled' %>
+        ❌ Reservation Cancelled
+      <% end %>
+    </h2>
+  </div>
+  
+  <div class="details-card">
+    <div class="detail-row">
+      <div class="detail-label">Date:</div>
+      <div class="detail-value"><%= @reservation.formatted_date %></div>
+    </div>
+    
+    <div class="detail-row">
+      <div class="detail-label">Time:</div>
+      <div class="detail-value"><%= @reservation.formatted_time %></div>
+    </div>
+    
+    <div class="detail-row">
+      <div class="detail-label">Party Size:</div>
+      <div class="detail-value"><%= @reservation.num_people %> <%= "person".pluralize(@reservation.num_people) %></div>
+    </div>
+    
+    <% if @reservation.table %>
+      <div class="detail-row">
+        <div class="detail-label">Table:</div>
+        <div class="detail-value"><%= @reservation.table.display_name %></div>
+      </div>
+    <% end %>
+    
+    <div class="detail-row">
+      <div class="detail-label">Status:</div>
+      <div class="detail-value">
+        <span class="badge badge-<%= @reservation.status %>"><%= @reservation.status.titleize %></span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="details-card">
+    <h3>Contact Information</h3>
+    
+    <div class="detail-row">
+      <div class="detail-label">Name:</div>
+      <div class="detail-value"><%= @reservation.contact_name %></div>
+    </div>
+    
+    <div class="detail-row">
+      <div class="detail-label">Email:</div>
+      <div class="detail-value"><%= @reservation.contact_email %></div>
+    </div>
+    
+    <div class="detail-row">
+      <div class="detail-label">Phone:</div>
+      <div class="detail-value"><%= @reservation.contact_phone %></div>
+    </div>
+  </div>
+  
+  <% if @reservation.status == 'confirmed' %>
+    <div class="reservation-actions-container">
+      <% if @reservation.cancellable? %>
+        <%= button_to "Cancel Reservation", reservation_path(@reservation), 
+            method: :delete, 
+            data: { turbo_confirm: "Are you sure you want to cancel this reservation? This action cannot be undone." },
+            class: "btn btn-danger btn-lg" %>
+        <p class="text-muted mt-2">
+          <small>You can cancel this reservation until <%= (@reservation.reservation_datetime - 2.hours).strftime("%B %d, %Y at %I:%M %p") %></small>
+        </p>
+      <% else %>
+        <div class="alert alert-warning">
+          This reservation cannot be cancelled. Cancellations must be made at least 2 hours in advance.
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

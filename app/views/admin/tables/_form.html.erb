@@ -1,0 +1,38 @@
+<% content_for :title, "#{@table.new_record? ? 'New' : 'Edit'} Table - Admin" %>
+
+<div class="admin-page-header">
+  <h1><%= @table.new_record? ? 'Add New' : 'Edit' %> Table</h1>
+  <%= link_to "← Back", admin_tables_path, class: "btn btn-link" %>
+</div>
+
+<div class="form-container">
+  <%= form_with model: [:admin, @table], class: "admin-form" do |f| %>
+    <% if @table.errors.any? %>
+      <div class="alert alert-danger">
+        <h4><%= pluralize(@table.errors.count, "error") %> prevented this table from being saved:</h4>
+        <ul>
+          <% @table.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+    
+    <div class="form-group">
+      <%= f.label :table_number, "Table Number" %>
+      <%= f.text_field :table_number, class: "form-control", placeholder: "e.g., 1, 2, A1, B2", required: true %>
+      <small class="form-text">Unique identifier for this table</small>
+    </div>
+    
+    <div class="form-group">
+      <%= f.label :capacity, "Capacity" %>
+      <%= f.number_field :capacity, class: "form-control", min: 1, placeholder: "e.g., 4", required: true %>
+      <small class="form-text">Maximum number of people this table can accommodate</small>
+    </div>
+    
+    <div class="form-actions">
+      <%= f.submit @table.new_record? ? "Create Table" : "Update Table", class: "btn btn-primary" %>
+      <%= link_to "Cancel", admin_tables_path, class: "btn btn-link" %>
+    </div>
+  <% end %>
+</div>

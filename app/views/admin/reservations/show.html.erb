@@ -1,0 +1,97 @@
+<% content_for :title, "Reservation ##{@reservation.id} - Admin" %>
+
+<div class="admin-page-header">
+  <h1>Reservation #<%= @reservation.id %></h1>
+  <div>
+    <%= link_to "← Back", admin_reservations_path, class: "btn btn-link" %>
+    <%= link_to "Edit", edit_admin_reservation_path(@reservation), class: "btn btn-info" %>
+  </div>
+</div>
+
+<div class="details-grid">
+  <div class="details-card">
+    <h3>Reservation Details</h3>
+    
+    <div class="detail-row">
+      <div class="detail-label">Status:</div>
+      <div class="detail-value">
+        <span class="badge badge-<%= @reservation.status %>"><%= @reservation.status.titleize %></span>
+      </div>
+    </div>
+    
+    <div class="detail-row">
+      <div class="detail-label">Date:</div>
+      <div class="detail-value"><%= @reservation.formatted_date %></div>
+    </div>
+    
+    <div class="detail-row">
+      <div class="detail-label">Time:</div>
+      <div class="detail-value"><%= @reservation.formatted_time %></div>
+    </div>
+    
+    <div class="detail-row">
+      <div class="detail-label">Party Size:</div>
+      <div class="detail-value"><%= @reservation.num_people %> people</div>
+    </div>
+    
+    <div class="detail-row">
+      <div class="detail-label">Table:</div>
+      <div class="detail-value">
+        <%= @reservation.table ? @reservation.table.display_name : 'Not assigned' %>
+      </div>
+    </div>
+    
+    <div class="detail-row">
+      <div class="detail-label">Created At:</div>
+      <div class="detail-value"><%= @reservation.created_at.strftime("%B %d, %Y at %I:%M %p") %></div>
+    </div>
+  </div>
+  
+  <div class="details-card">
+    <h3>Customer Information</h3>
+    
+    <div class="detail-row">
+      <div class="detail-label">Name:</div>
+      <div class="detail-value"><%= @reservation.user.name %></div>
+    </div>
+    
+    <div class="detail-row">
+      <div class="detail-label">Email:</div>
+      <div class="detail-value"><%= @reservation.user.email %></div>
+    </div>
+    
+    <div class="detail-row">
+      <div class="detail-label">Phone:</div>
+      <div class="detail-value"><%= @reservation.user.phone %></div>
+    </div>
+  </div>
+  
+  <div class="details-card">
+    <h3>Contact Information</h3>
+    <p class="text-muted">Information provided for this reservation</p>
+    
+    <div class="detail-row">
+      <div class="detail-label">Name:</div>
+      <div class="detail-value"><%= @reservation.contact_name %></div>
+    </div>
+    
+    <div class="detail-row">
+      <div class="detail-label">Email:</div>
+      <div class="detail-value"><%= @reservation.contact_email %></div>
+    </div>
+    
+    <div class="detail-row">
+      <div class="detail-label">Phone:</div>
+      <div class="detail-value"><%= @reservation.contact_phone %></div>
+    </div>
+  </div>
+</div>
+
+<% if @reservation.status == 'confirmed' %>
+  <div class="admin-actions">
+    <%= button_to "Cancel This Reservation", admin_reservation_path(@reservation), 
+        method: :delete, 
+        data: { turbo_confirm: "Are you sure you want to cancel this reservation?" },
+        class: "btn btn-danger" %>
+  </div>
+<% end %>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Admin - Restaurant Reservation System" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="admin-body">
+    <%= render 'layouts/navigation' %>
+    
+    <div class="admin-container">
+      <div class="admin-sidebar">
+        <h3>Admin Menu</h3>
+        <nav class="sidebar-nav">
+          <%= link_to admin_dashboard_path, class: "sidebar-link #{current_page?(admin_dashboard_path) ? 'active' : ''}" do %>
+            <span>📊 Dashboard</span>
+          <% end %>
+          
+          <%= link_to admin_calendar_path, class: "sidebar-link #{current_page?(admin_calendar_path) ? 'active' : ''}" do %>
+            <span>📅 Calendar</span>
+          <% end %>
+          
+          <%= link_to admin_reservations_path, class: "sidebar-link #{current_page?(admin_reservations_path) ? 'active' : ''}" do %>
+            <span>📋 Reservations</span>
+          <% end %>
+          
+          <%= link_to admin_time_slots_path, class: "sidebar-link #{current_page?(admin_time_slots_path) ? 'active' : ''}" do %>
+            <span>⏰ Time Slots</span>
+          <% end %>
+          
+          <%= link_to admin_tables_path, class: "sidebar-link #{current_page?(admin_tables_path) ? 'active' : ''}" do %>
+            <span>🪑 Tables</span>
+          <% end %>
+        </nav>
+      </div>
+      
+      <div class="admin-content">
+        <%= render 'layouts/flash_messages' %>
+        <%= yield %>
+      </div>
+    </div>
+    
+    <%= render 'layouts/footer' %>
+  </body>
+</html>

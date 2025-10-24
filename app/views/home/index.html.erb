@@ -1,0 +1,41 @@
+<% content_for :title, "Welcome - Restaurant Reservation System" %>
+
+<div class="hero-section">
+  <div class="hero-content">
+    <h1>🍽️ Welcome to Restaurant Reservation</h1>
+    <p class="lead">Reserve your table with ease. Experience fine dining at its best.</p>
+    
+    <div class="hero-actions">
+      <%= link_to "Sign Up Now", signup_path, class: "btn btn-primary btn-lg" %>
+      <%= link_to "Login", login_path, class: "btn btn-outline btn-lg" %>
+    </div>
+  </div>
+</div>
+
+<div class="features-section">
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">📅</div>
+      <h3>Easy Booking</h3>
+      <p>Book your table in just a few clicks. View available time slots in real-time.</p>
+    </div>
+    
+    <div class="feature-card">
+      <div class="feature-icon">⏰</div>
+      <h3>Flexible Timing</h3>
+      <p>Choose from multiple time slots throughout the day that suit your schedule.</p>
+    </div>
+    
+    <div class="feature-card">
+      <div class="feature-icon">✅</div>
+      <h3>Instant Confirmation</h3>
+      <p>Get immediate confirmation of your reservation with all the details.</p>
+    </div>
+    
+    <div class="feature-card">
+      <div class="feature-icon">📱</div>
+      <h3>Manage Reservations</h3>
+      <p>View and cancel your reservations easily from your account.</p>
+    </div>
+  </div>
+</div>

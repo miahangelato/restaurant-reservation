@@ -1,0 +1,84 @@
+<% content_for :title, "Manage Reservations - Admin" %>
+
+<div class="admin-page-header">
+  <h1>Manage Reservations</h1>
+  <%= link_to "Create New Reservation", new_admin_reservation_path, class: "btn btn-primary" %>
+</div>
+
+<div class="filters-section">
+  <%= form_with url: admin_reservations_path, method: :get, class: "filters-form" do |f| %>
+    <div class="filter-group">
+      <%= f.label :status, "Status:" %>
+      <%= f.select :status, [['All', ''], ['Confirmed', 'confirmed'], ['Pending', 'pending'], ['Cancelled', 'cancelled']], { selected: params[:status] }, { class: "form-control" } %>
+    </div>
+    
+    <div class="filter-group">
+      <%= f.label :date, "Date:" %>
+      <%= f.date_field :date, value: params[:date], class: "form-control" %>
+    </div>
+    
+    <div class="filter-group">
+      <%= f.label :search, "Search:" %>
+      <%= f.text_field :search, value: params[:search], placeholder: "Name, email, phone...", class: "form-control" %>
+    </div>
+    
+    <div class="filter-actions">
+      <%= f.submit "Filter", class: "btn btn-secondary" %>
+      <%= link_to "Clear", admin_reservations_path, class: "btn btn-link" %>
+    </div>
+  <% end %>
+</div>
+
+<% if @reservations.any? %>
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Date & Time</th>
+          <th>Customer</th>
+          <th>Contact</th>
+          <th>Party Size</th>
+          <th>Table</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @reservations.each do |reservation| %>
+          <tr>
+            <td>#<%= reservation.id %></td>
+            <td>
+              <strong><%= reservation.formatted_date %></strong><br>
+              <small><%= reservation.formatted_time %></small>
+            </td>
+            <td>
+              <%= reservation.user.name %><br>
+              <small><%= reservation.user.email %></small>
+            </td>
+            <td>
+              <%= reservation.contact_name %><br>
+              <small><%= reservation.contact_phone %></small>
+            </td>
+            <td><%= reservation.num_people %> people</td>
+            <td><%= reservation.table ? reservation.table.display_name : 'Not assigned' %></td>
+            <td><span class="badge badge-<%= reservation.status %>"><%= reservation.status.titleize %></span></td>
+            <td>
+              <%= link_to "View", admin_reservation_path(reservation), class: "btn btn-sm btn-secondary" %>
+              <%= link_to "Edit", edit_admin_reservation_path(reservation), class: "btn btn-sm btn-info" %>
+              <% if reservation.status == 'confirmed' %>
+                <%= button_to "Cancel", admin_reservation_path(reservation), method: :delete, 
+                    data: { turbo_confirm: "Are you sure?" }, 
+                    class: "btn btn-sm btn-danger" %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="empty-state">
+    <p>No reservations found.</p>
+  </div>
+<% end %>

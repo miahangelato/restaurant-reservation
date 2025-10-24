@@ -1,0 +1,41 @@
+<% content_for :title, "Time Slots - Admin" %>
+
+<div class="admin-page-header">
+  <h1>Time Slots Management</h1>
+  <%= link_to "Add New Time Slot", new_admin_time_slot_path, class: "btn btn-primary" %>
+</div>
+
+<% if @time_slots.any? %>
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Max Tables</th>
+          <th>Max People Per Table</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @time_slots.each do |time_slot| %>
+          <tr>
+            <td><strong><%= time_slot.formatted_time %></strong></td>
+            <td><%= time_slot.max_tables %></td>
+            <td><%= time_slot.max_people_per_table %> people</td>
+            <td>
+              <%= link_to "Edit", edit_admin_time_slot_path(time_slot), class: "btn btn-sm btn-info" %>
+              <%= button_to "Delete", admin_time_slot_path(time_slot), method: :delete,
+                  data: { turbo_confirm: "Are you sure? This will affect all reservations using this time slot." },
+                  class: "btn btn-sm btn-danger" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="empty-state">
+    <p>No time slots configured.</p>
+    <%= link_to "Add Your First Time Slot", new_admin_time_slot_path, class: "btn btn-primary" %>
+  </div>
+<% end %>

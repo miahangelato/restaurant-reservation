@@ -1,0 +1,117 @@
+<% content_for :title, "Reservation Calendar - Admin" %>
+
+<div class="admin-page-header">
+  <h1>Reservation Calendar</h1>
+  
+  <div class="calendar-controls">
+    <%= form_with url: admin_calendar_path, method: :get, class: "calendar-form" do |f| %>
+      <%= f.date_field :date, value: @date, class: "form-control", onchange: "this.form.submit()" %>
+      <%= f.select :view, [['Daily', 'daily'], ['Weekly', 'weekly'], ['Monthly', 'monthly']], { selected: @view }, { class: "form-control", onchange: "this.form.submit()" } %>
+    <% end %>
+  </div>
+</div>
+
+<% if @view == 'daily' %>
+  <div class="calendar-daily">
+    <h2><%= @date.strftime("%A, %B %d, %Y") %></h2>
+    
+    <div class="daily-schedule">
+      <% @time_slots.each do |time_slot| %>
+        <div class="time-slot-row">
+          <div class="time-label">
+            <strong><%= time_slot.formatted_time %></strong>
+          </div>
+          
+          <div class="slot-reservations">
+            <% slot_reservations = @reservations.select { |r| r.time_slot_id == time_slot.id } %>
+            <% if slot_reservations.any? %>
+              <% slot_reservations.each do |reservation| %>
+                <div class="reservation-block status-<%= reservation.status %>">
+                  <strong><%= reservation.user.name %></strong> - <%= reservation.num_people %> people
+                  <% if reservation.table %>
+                    (<%= reservation.table.table_number %>)
+                  <% end %>
+                  <%= link_to "View", admin_reservation_path(reservation), class: "view-link" %>
+                </div>
+              <% end %>
+            <% else %>
+              <div class="no-reservations">No reservations</div>
+            <% end %>
+          </div>
+          
+          <div class="slot-availability">
+            <%= time_slot.available_tables_for_date(@date) %> / <%= time_slot.max_tables %> available
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+<% elsif @view == 'weekly' %>
+  <div class="calendar-weekly">
+    <h2>Week of <%= @date.beginning_of_week.strftime("%B %d") %> - <%= @date.end_of_week.strftime("%B %d, %Y") %></h2>
+    
+    <div class="table-responsive">
+      <table class="calendar-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Reservations</th>
+            <th>Total Guests</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @dates.each do |date| %>
+            <% day_reservations = @reservations.select { |r| r.reservation_date == date } %>
+            <tr class="<%= 'today' if date == Date.today %>">
+              <td>
+                <strong><%= date.strftime("%A") %></strong><br>
+                <%= date.strftime("%B %d") %>
+              </td>
+              <td><%= day_reservations.count %> reservations</td>
+              <td><%= day_reservations.sum(&:num_people) %> guests</td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+<% else %> <%# Monthly view %>
+  <div class="calendar-monthly">
+    <h2><%= @date.strftime("%B %Y") %></h2>
+    
+    <div class="table-responsive">
+      <table class="calendar-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Day</th>
+            <th>Reservations</th>
+            <th>Total Guests</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @dates.each do |date| %>
+            <% day_reservations = @reservations.select { |r| r.reservation_date == date } %>
+            <tr class="<%= 'today' if date == Date.today %>">
+              <td><%= date.strftime("%d") %></td>
+              <td><%= date.strftime("%A") %></td>
+              <td><%= day_reservations.count %></td>
+              <td><%= day_reservations.sum(&:num_people) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% end %>
+
+<div class="calendar-legend">
+  <h4>Legend</h4>
+  <div class="legend-items">
+    <span class="legend-item"><span class="badge badge-confirmed"></span> Confirmed</span>
+    <span class="legend-item"><span class="badge badge-pending"></span> Pending</span>
+    <span class="legend-item"><span class="badge badge-cancelled"></span> Cancelled</span>
+  </div>
+</div>

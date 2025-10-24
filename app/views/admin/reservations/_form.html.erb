@@ -1,0 +1,91 @@
+<% content_for :title, "#{@reservation.new_record? ? 'New' : 'Edit'} Reservation - Admin" %>
+
+<div class="admin-page-header">
+  <h1><%= @reservation.new_record? ? 'Create New' : 'Edit' %> Reservation</h1>
+  <%= link_to "← Back", admin_reservations_path, class: "btn btn-link" %>
+</div>
+
+<div class="form-container">
+  <%= form_with model: [:admin, @reservation], class: "admin-form" do |f| %>
+    <% if @reservation.errors.any? %>
+      <div class="alert alert-danger">
+        <h4><%= pluralize(@reservation.errors.count, "error") %> prevented this reservation from being saved:</h4>
+        <ul>
+          <% @reservation.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+    
+    <div class="form-group">
+      <%= f.label :user_id, "Customer" %>
+      <%= f.select :user_id, 
+          options_from_collection_for_select(@users, :id, :name, @reservation.user_id),
+          { prompt: "Select a customer" },
+          { class: "form-control", required: true } %>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <%= f.label :reservation_date, "Date" %>
+        <%= f.date_field :reservation_date, class: "form-control", required: true %>
+      </div>
+      
+      <div class="form-group col-md-6">
+        <%= f.label :time_slot_id, "Time Slot" %>
+        <%= f.select :time_slot_id, 
+            options_from_collection_for_select(@time_slots, :id, :formatted_time, @reservation.time_slot_id),
+            { prompt: "Select a time" },
+            { class: "form-control", required: true } %>
+      </div>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <%= f.label :num_people, "Number of People" %>
+        <%= f.number_field :num_people, class: "form-control", min: 1, required: true %>
+      </div>
+      
+      <div class="form-group col-md-6">
+        <%= f.label :table_id, "Table (Optional)" %>
+        <%= f.select :table_id, 
+            options_from_collection_for_select(@tables, :id, :display_name, @reservation.table_id),
+            { prompt: "Auto-assign" },
+            { class: "form-control" } %>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <%= f.label :status, "Status" %>
+      <%= f.select :status, 
+          [['Confirmed', 'confirmed'], ['Pending', 'pending'], ['Cancelled', 'cancelled']],
+          { selected: @reservation.status },
+          { class: "form-control", required: true } %>
+    </div>
+    
+    <h3>Contact Information</h3>
+    
+    <div class="form-group">
+      <%= f.label :contact_name, "Contact Name" %>
+      <%= f.text_field :contact_name, class: "form-control", required: true %>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <%= f.label :contact_email, "Contact Email" %>
+        <%= f.email_field :contact_email, class: "form-control", required: true %>
+      </div>
+      
+      <div class="form-group col-md-6">
+        <%= f.label :contact_phone, "Contact Phone" %>
+        <%= f.text_field :contact_phone, class: "form-control", required: true %>
+      </div>
+    </div>
+    
+    <div class="form-actions">
+      <%= f.submit @reservation.new_record? ? "Create Reservation" : "Update Reservation", class: "btn btn-primary" %>
+      <%= link_to "Cancel", admin_reservations_path, class: "btn btn-link" %>
+    </div>
+  <% end %>
+</div>

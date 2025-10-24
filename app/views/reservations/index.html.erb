@@ -1,0 +1,68 @@
+<% content_for :title, "My Reservations - Restaurant Reservation System" %>
+
+<div class="page-header">
+  <h1>My Reservations</h1>
+  <%= link_to "Make New Reservation", new_reservation_path, class: "btn btn-primary" %>
+</div>
+
+<div class="reservations-section">
+  <h2>Upcoming Reservations</h2>
+  
+  <% if @upcoming_reservations.any? %>
+    <div class="reservations-grid">
+      <% @upcoming_reservations.each do |reservation| %>
+        <div class="reservation-card">
+          <div class="reservation-header">
+            <h3><%= reservation.formatted_date %></h3>
+            <span class="badge badge-<%= reservation.status %>"><%= reservation.status.titleize %></span>
+          </div>
+          
+          <div class="reservation-details">
+            <p><strong>Time:</strong> <%= reservation.formatted_time %></p>
+            <p><strong>Party Size:</strong> <%= reservation.num_people %> people</p>
+            <% if reservation.table %>
+              <p><strong>Table:</strong> <%= reservation.table.display_name %></p>
+            <% end %>
+            <p><strong>Contact:</strong> <%= reservation.contact_name %></p>
+            <p><strong>Phone:</strong> <%= reservation.contact_phone %></p>
+          </div>
+          
+          <div class="reservation-actions">
+            <%= link_to "View Details", reservation_path(reservation), class: "btn btn-sm btn-secondary" %>
+            
+            <% if reservation.cancellable? %>
+              <%= button_to "Cancel Reservation", reservation_path(reservation), method: :delete, 
+                  data: { turbo_confirm: "Are you sure you want to cancel this reservation?" }, 
+                  class: "btn btn-sm btn-danger" %>
+            <% else %>
+              <small class="text-muted">Cannot cancel</small>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="empty-state">
+      <p>You don't have any upcoming reservations.</p>
+      <%= link_to "Make a Reservation", new_reservation_path, class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</div>
+
+<% if @past_reservations.any? %>
+  <div class="reservations-section">
+    <h2>Past Reservations</h2>
+    
+    <div class="reservations-list">
+      <% @past_reservations.each do |reservation| %>
+        <div class="reservation-item">
+          <div class="reservation-summary">
+            <strong><%= reservation.formatted_date %></strong> at <%= reservation.formatted_time %>
+            - <%= reservation.num_people %> people
+            <span class="badge badge-<%= reservation.status %>"><%= reservation.status.titleize %></span>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

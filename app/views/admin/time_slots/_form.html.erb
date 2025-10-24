@@ -1,0 +1,44 @@
+<% content_for :title, "#{@time_slot.new_record? ? 'New' : 'Edit'} Time Slot - Admin" %>
+
+<div class="admin-page-header">
+  <h1><%= @time_slot.new_record? ? 'Add New' : 'Edit' %> Time Slot</h1>
+  <%= link_to "← Back", admin_time_slots_path, class: "btn btn-link" %>
+</div>
+
+<div class="form-container">
+  <%= form_with model: [:admin, @time_slot], class: "admin-form" do |f| %>
+    <% if @time_slot.errors.any? %>
+      <div class="alert alert-danger">
+        <h4><%= pluralize(@time_slot.errors.count, "error") %> prevented this time slot from being saved:</h4>
+        <ul>
+          <% @time_slot.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+    
+    <div class="form-group">
+      <%= f.label :time, "Time" %>
+      <%= f.time_field :time, class: "form-control", required: true %>
+      <small class="form-text">Set the time for this slot (e.g., 12:00, 18:00)</small>
+    </div>
+    
+    <div class="form-group">
+      <%= f.label :max_tables, "Maximum Number of Tables" %>
+      <%= f.number_field :max_tables, class: "form-control", min: 1, required: true %>
+      <small class="form-text">How many tables can be booked for this time slot?</small>
+    </div>
+    
+    <div class="form-group">
+      <%= f.label :max_people_per_table, "Maximum People Per Table" %>
+      <%= f.number_field :max_people_per_table, class: "form-control", min: 1, required: true %>
+      <small class="form-text">Maximum party size allowed for a single reservation</small>
+    </div>
+    
+    <div class="form-actions">
+      <%= f.submit @time_slot.new_record? ? "Create Time Slot" : "Update Time Slot", class: "btn btn-primary" %>
+      <%= link_to "Cancel", admin_time_slots_path, class: "btn btn-link" %>
+    </div>
+  <% end %>
+</div>

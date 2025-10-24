@@ -1,0 +1,62 @@
+<% content_for :title, "Check Availability - Restaurant Reservation System" %>
+
+<div class="page-header">
+  <h1>Check Availability</h1>
+  <%= link_to "Make a Reservation", new_reservation_path, class: "btn btn-primary" %>
+</div>
+
+<div class="availability-container">
+  <div class="date-selector">
+    <h3>Select a Date</h3>
+    
+    <%= form_with url: availability_reservations_path, method: :get, class: "date-form" do |f| %>
+      <%= f.date_field :date, 
+          value: @date, 
+          min: Date.today, 
+          max: Date.today + 3.months,
+          class: "form-control",
+          onchange: "this.form.submit()" %>
+    <% end %>
+  </div>
+  
+  <div class="availability-results">
+    <h2>Available Time Slots for <%= @date.strftime("%B %d, %Y") %></h2>
+    
+    <div class="time-slots-grid">
+      <% @availability.each do |slot_data| %>
+        <% time_slot = slot_data[:time_slot] %>
+        <% available_tables = slot_data[:available_tables] %>
+        <% is_available = slot_data[:available] %>
+        
+        <div class="time-slot-card <%= is_available ? 'available' : 'unavailable' %>">
+          <div class="time-slot-time">
+            <%= time_slot.formatted_time %>
+          </div>
+          
+          <div class="time-slot-info">
+            <p class="availability-status">
+              <% if is_available %>
+                <span class="status-icon">✅</span>
+                <strong><%= available_tables %></strong> <%= "table".pluralize(available_tables) %> available
+              <% else %>
+                <span class="status-icon">❌</span>
+                <strong>Fully Booked</strong>
+              <% end %>
+            </p>
+            
+            <p class="slot-capacity text-muted">
+              Max <%= time_slot.max_people_per_table %> people per table
+            </p>
+          </div>
+          
+          <% if is_available %>
+            <%= link_to "Book Now", new_reservation_path(date: @date, time_slot_id: time_slot.id), 
+                class: "btn btn-primary btn-sm btn-block" %>
+          <% else %>
+            <button class="btn btn-secondary btn-sm btn-block" disabled>Not Available</button>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

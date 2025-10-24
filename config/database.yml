@@ -1,0 +1,28 @@
+# PostgreSQL configuration for Windows
+# Make sure PostgreSQL is installed and running on Windows
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  username: <%= ENV["DATABASE_USERNAME"] || "postgres" %>
+  password: <%= ENV["DATABASE_PASSWORD"] || "123ediwow" %>
+  host: <%= ENV["DATABASE_HOST"] || "localhost" %>
+  port: 5432
+
+development:
+  <<: *default
+  database: rails
+
+# Warning: The database defined as "test" will be erased and
+# re-generated from your development database when you run "rake".
+# Do not set this db to the same as development or production.
+test:
+  <<: *default
+  database: rails_test
+
+# Production configuration
+production:
+  <<: *default
+  database: rails_production
+  username: <%= ENV["DATABASE_USERNAME"] || "postgres" %>
+  password: <%= ENV["DATABASE_PASSWORD"] || "123ediwow" %>

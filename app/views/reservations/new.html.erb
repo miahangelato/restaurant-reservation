@@ -1,0 +1,96 @@
+<% content_for :title, "New Reservation - Restaurant Reservation System" %>
+
+<div class="page-header">
+  <h1>Make a Reservation</h1>
+  <%= link_to "← Back to My Reservations", reservations_path, class: "btn btn-link" %>
+</div>
+
+<div class="reservation-form-container">
+  <%= form_with model: @reservation, class: "reservation-form" do |f| %>
+    <% if @reservation.errors.any? %>
+      <div class="alert alert-danger">
+        <h4><%= pluralize(@reservation.errors.count, "error") %> prevented this reservation from being saved:</h4>
+        <ul>
+          <% @reservation.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+    
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <%= f.label :reservation_date, "Date" %>
+        <%= f.date_field :reservation_date, 
+            class: "form-control", 
+            min: @min_date, 
+            max: @max_date,
+            required: true %>
+        <small class="form-text">Reservations must be made at least 2 hours in advance</small>
+      </div>
+      
+      <div class="form-group col-md-6">
+        <%= f.label :time_slot_id, "Time Slot" %>
+        <%= f.select :time_slot_id, 
+            options_from_collection_for_select(@time_slots, :id, :formatted_time, @reservation.time_slot_id),
+            { prompt: "Select a time" },
+            { class: "form-control", required: true } %>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <%= f.label :num_people, "Number of People" %>
+      <%= f.number_field :num_people, 
+          class: "form-control", 
+          min: 1, 
+          placeholder: "How many people?",
+          required: true %>
+    </div>
+    
+    <div class="form-section-title">
+      <h3>Contact Information</h3>
+      <p class="text-muted">This information will be used to contact you about your reservation</p>
+    </div>
+    
+    <div class="form-group">
+      <%= f.label :contact_name, "Full Name" %>
+      <%= f.text_field :contact_name, 
+          class: "form-control", 
+          value: current_user.name,
+          required: true %>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <%= f.label :contact_email, "Email" %>
+        <%= f.email_field :contact_email, 
+            class: "form-control", 
+            value: current_user.email,
+            required: true %>
+      </div>
+      
+      <div class="form-group col-md-6">
+        <%= f.label :contact_phone, "Phone Number" %>
+        <%= f.text_field :contact_phone, 
+            class: "form-control", 
+            value: current_user.phone,
+            required: true %>
+      </div>
+    </div>
+    
+    <div class="form-actions">
+      <%= f.submit "Confirm Reservation", class: "btn btn-primary btn-lg" %>
+      <%= link_to "Cancel", reservations_path, class: "btn btn-link" %>
+    </div>
+  <% end %>
+</div>
+
+<div class="info-box">
+  <h4>📋 Reservation Policy</h4>
+  <ul>
+    <li>Reservations must be made at least 2 hours in advance</li>
+    <li>You can cancel your reservation up to 2 hours before your scheduled time</li>
+    <li>Please arrive on time for your reservation</li>
+    <li>If you need to modify your reservation, please cancel and create a new one</li>
+  </ul>
+</div>
