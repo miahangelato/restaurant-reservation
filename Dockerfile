@@ -43,6 +43,9 @@ RUN bundle config set frozen false && \
 # Copy application code
 COPY . .
 
+# Fix permissions for bin scripts
+RUN chmod +x bin/*
+
 # Precompile bootsnap code for faster boot times
 RUN bundle exec bootsnap precompile app/ lib/
 
