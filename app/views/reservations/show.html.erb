@@ -70,18 +70,30 @@
   
   <% if @reservation.status == 'confirmed' %>
     <div class="reservation-actions-container">
-      <% if @reservation.cancellable? %>
-        <%= button_to "Cancel Reservation", reservation_path(@reservation), 
-            method: :delete, 
-            data: { turbo_confirm: "Are you sure you want to cancel this reservation? This action cannot be undone." },
-            class: "btn btn-danger btn-lg" %>
-        <p class="text-muted mt-2">
-          <small>You can cancel this reservation until <%= (@reservation.reservation_datetime - 2.hours).strftime("%B %d, %Y at %I:%M %p") %></small>
-        </p>
+      <%# Only show cancellation controls to the reservation owner or admins. Guests (including token-based viewers) cannot cancel or edit. %>
+      <% if current_user && (current_user == @reservation.user || current_user.admin?) %>
+        <% if @reservation.cancellable? %>
+          <%= button_to "Cancel Reservation", cancel_reservation_path(@reservation), 
+              method: :patch, 
+              data: { turbo_confirm: "Are you sure you want to cancel this reservation? This action cannot be undone." },
+              class: "btn btn-danger btn-lg" %>
+          <p class="text-muted mt-2">
+            <small>
+              You can cancel this reservation until <%= (@reservation.reservation_datetime - (Rails.application.config.x.reservations.cancellation_cutoff_hours || 1).hours).strftime("%B %d, %Y at %I:%M %p") %>
+            </small>
+          </p>
+        <% else %>
+          <div class="alert alert-warning">
+            This reservation cannot be cancelled. Cancellations must be made at least <%= Rails.application.config.x.reservations.cancellation_cutoff_hours %> hour(s) in advance.
+          </div>
+        <% end %>
       <% else %>
-        <div class="alert alert-warning">
-          This reservation cannot be cancelled. Cancellations must be made at least 2 hours in advance.
-        </div>
+        <%# For guests viewing the reservation, show an informational note instead of cancellation controls. %>
+        <% if @reservation.user.nil? || @guest_token.present? %>
+          <div class="alert alert-info">
+            Editing or cancelling this reservation is available only to registered users. If you need to modify or cancel, please <a href="<%= signup_url %>">create an account</a> or <a href="<%= login_url %>">sign in</a> and manage your reservation from "My Reservations".
+          </div>
+        <% end %>
       <% end %>
     </div>
   <% end %>

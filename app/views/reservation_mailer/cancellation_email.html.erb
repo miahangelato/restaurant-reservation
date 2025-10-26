@@ -1,0 +1,17 @@
+<p>Hi <%= @reservation.contact_name.presence || @reservation.user&.name %>,</p>
+
+<p>Your reservation at <strong>Restaurant Reservation</strong> has been cancelled. Details below:</p>
+
+<ul>
+  <li><strong>Date:</strong> <%= @reservation.formatted_date %></li>
+  <li><strong>Time:</strong> <%= @reservation.formatted_time %></li>
+  <li><strong>Party size:</strong> <%= @reservation.num_people %></li>
+  <% if @reservation.table %>
+    <li><strong>Table:</strong> <%= @reservation.table.display_name %></li>
+  <% end %>
+  <li><strong>Cancelled at:</strong> <%= (@reservation.cancelled_at || Time.zone.now).strftime("%B %d, %Y at %I:%M %p") %></li>
+</ul>
+
+<p>If you believe this was a mistake, please contact us or create a new reservation.</p>
+
+<p>— Restaurant Reservation</p>

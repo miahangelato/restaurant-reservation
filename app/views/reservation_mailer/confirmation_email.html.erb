@@ -1,0 +1,29 @@
+<p>Hi <%= @reservation.contact_name.presence || @reservation.user&.name %>,</p>
+
+<p>Thanks for your reservation at <strong>Restaurant Reservation</strong>. Here are the details:</p>
+
+<ul>
+  <li><strong>Date:</strong> <%= @reservation.formatted_date %></li>
+  <li><strong>Time:</strong> <%= @reservation.formatted_time %></li>
+  <li><strong>Party size:</strong> <%= @reservation.num_people %></li>
+  <% if @reservation.table %>
+    <li><strong>Table:</strong> <%= @reservation.table.display_name %></li>
+  <% end %>
+</ul>
+
+<p>If you need to view or modify your reservation, please visit your account and go to "My Reservations".</p>
+
+<% if @guest_token.present? %>
+  <p>
+    Since you booked as a guest, you may view this reservation using the link below (valid until <%= @reservation.guest_token_expires_at.strftime('%B %d, %Y') if @reservation.guest_token_expires_at %>):
+  </p>
+  <p>
+    <a href="<%= reservation_url(@reservation, guest_token: @guest_token) %>">View your reservation (guest access)</a>
+  </p>
+  <p>
+    Important: Guest users can view their reservation via this link, but editing or cancelling a reservation is available only to registered users. To modify or cancel this reservation, please <a href="<%= signup_url %>">create an account</a> or <a href="<%= login_url %>">sign in</a> and then use the "My Reservations" page.
+  </p>
+<% end %>
+<p>We look forward to seeing you!</p>
+
+<p>— Restaurant Reservation</p>

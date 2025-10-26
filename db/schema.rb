@@ -10,12 +10,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_10_24_000004) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_27_000005) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "reservations", force: :cascade do |t|
-    t.bigint "user_id", null: false
+    t.bigint "user_id"
     t.bigint "time_slot_id", null: false
     t.bigint "table_id"
     t.date "reservation_date", null: false
@@ -26,6 +26,11 @@ ActiveRecord::Schema[8.0].define(version: 2024_10_24_000004) do
     t.string "status", default: "confirmed", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "cancelled_at"
+    t.string "guest_token_digest"
+    t.datetime "guest_token_expires_at"
+    t.index ["cancelled_at"], name: "index_reservations_on_cancelled_at"
+    t.index ["guest_token_digest"], name: "index_reservations_on_guest_token_digest"
     t.index ["table_id"], name: "index_reservations_on_table_id"
     t.index ["time_slot_id", "reservation_date", "table_id"], name: "index_reservations_on_slot_date_table"
     t.index ["time_slot_id"], name: "index_reservations_on_time_slot_id"

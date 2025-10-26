@@ -1,0 +1,4 @@
+en:
+  reservation_mailer:
+    confirmation_subject: "Your reservation at %{restaurant} — %{date} at %{time}"
+    cancellation_subject: "Your reservation at %{restaurant} on %{date} at %{time} has been cancelled"

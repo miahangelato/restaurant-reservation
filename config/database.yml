@@ -3,6 +3,7 @@
 default: &default
   adapter: postgresql
   encoding: unicode
+  database: restaurant_reservation
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   username: <%= ENV["DATABASE_USERNAME"] || "postgres" %>
   password: <%= ENV["DATABASE_PASSWORD"] || "123ediwow" %>

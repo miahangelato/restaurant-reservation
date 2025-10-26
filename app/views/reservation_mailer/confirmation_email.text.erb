@@ -1,0 +1,23 @@
+Hi <%= @reservation.contact_name.presence || @reservation.user&.name %>,
+
+Thanks for your reservation at Restaurant Reservation. Here are the details:
+
+Date: <%= @reservation.formatted_date %>
+Time: <%= @reservation.formatted_time %>
+Party size: <%= @reservation.num_people %>
+<% if @reservation.table %>
+Table: <%= @reservation.table.display_name %>
+<% end %>
+
+To view or modify your reservation, please sign in and visit "My Reservations".
+
+We look forward to seeing you!
+
+— Restaurant Reservation
+
+<% if @guest_token.present? %>
+Guest access link (valid until <%= @reservation.guest_token_expires_at.strftime('%B %d, %Y') if @reservation.guest_token_expires_at %>):
+<%= reservation_url(@reservation, guest_token: @guest_token) %>
+
+Important: Guest users can view this reservation using the link above, but editing or cancelling is available only to registered users. To modify or cancel, please create an account (<%= signup_url %>) or sign in (<%= login_url %>) and use the "My Reservations" page.
+<% end %>

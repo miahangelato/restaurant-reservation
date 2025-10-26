@@ -17,6 +17,9 @@ Rails.application.routes.draw do
       get :calendar
       get :available_tables
     end
+    member do
+      patch :cancel
+    end
   end
   
   # Admin routes

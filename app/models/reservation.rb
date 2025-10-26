@@ -1,6 +1,7 @@
 class Reservation < ApplicationRecord
   # Associations
-  belongs_to :user
+  # Allow reservations to be created by guest (anonymous) users; user is optional
+  belongs_to :user, optional: true
   belongs_to :time_slot
   belongs_to :table, optional: true
   
@@ -20,6 +21,7 @@ class Reservation < ApplicationRecord
   before_validation :set_default_contact_info, on: :create
   before_validation :assign_available_table, on: :create
   after_initialize :set_default_status, if: :new_record?
+  after_commit :send_confirmation_email, on: :create
   
   # Scopes
   scope :confirmed, -> { where(status: 'confirmed') }
@@ -32,7 +34,10 @@ class Reservation < ApplicationRecord
   
   # Methods
   def cancellable?
-    status == 'confirmed' && reservation_datetime >= 2.hours.from_now
+    return false unless status == 'confirmed'
+
+    cutoff_hours = Rails.application.config.x.reservations.cancellation_cutoff_hours || 1
+    reservation_datetime >= cutoff_hours.hours.from_now
   end
   
   def reservation_datetime
@@ -45,6 +50,59 @@ class Reservation < ApplicationRecord
   
   def formatted_time
     time_slot.formatted_time
+  end
+
+  # Cancel this reservation (sets status and records cancelled_at if present)
+  def cancel!
+    # Use direct column update to avoid running validations that check table availability
+    # (the DB still contains a confirmed row for this reservation until we persist, so
+    # validating against the DB would incorrectly block cancellation). This is atomic.
+    attrs = { status: 'cancelled' }
+    attrs[:cancelled_at] = Time.zone.now if respond_to?(:cancelled_at)
+      update_columns(attrs)
+
+      # Enqueue cancellation email after marking cancelled; do not rely on callbacks as we used update_columns
+      begin
+        ReservationMailer.with(reservation: self).cancellation_email.deliver_later
+      rescue => e
+        Rails.logger.error("Failed to enqueue cancellation email for reservation #{id}: #{e.message}")
+      end
+  end
+
+  # Enqueue confirmation email after the reservation is committed
+  def send_confirmation_email
+    # For authenticated users we can send immediately (no guest token required).
+    # Guest reservations with a token are handled explicitly in controller to include the plain token in the email.
+    return if user.nil?
+
+    recipient = contact_email.presence || user&.email
+    return unless recipient.present?
+
+    ReservationMailer.with(reservation: self).confirmation_email.deliver_later
+  end
+
+  # Prepare a guest access token and store its digest and expiry on the reservation record.
+  # Returns the plain token (to be sent via email). This method does not save the record.
+  def prepare_guest_token!(expiry_days: nil)
+    return nil unless user.nil?
+
+    expiry_days ||= Rails.application.config.x.reservations.guest_token_expiry_days || 30
+    token = SecureRandom.urlsafe_base64(32)
+    digest = Digest::SHA256.hexdigest(token)
+
+    self.guest_token_digest = digest
+    self.guest_token_expires_at = Time.zone.now + expiry_days.days
+
+    token
+  end
+
+  # Verify a plain guest token against the stored digest and expiry
+  def valid_guest_token?(token)
+    return false if guest_token_digest.blank? || guest_token_expires_at.blank?
+    return false if guest_token_expires_at < Time.zone.now
+    return false if token.blank?
+
+    Digest::SHA256.hexdigest(token).casecmp(guest_token_digest) == 0
   end
   
   private
@@ -78,11 +136,14 @@ class Reservation < ApplicationRecord
   
   def reservation_must_be_at_least_2_hours_in_advance
     if reservation_date.present? && time_slot.present?
-      if reservation_datetime < 2.hours.from_now
-        errors.add(:base, "Reservations must be made at least 2 hours in advance")
+      required_hours = Rails.application.config.x.reservations.creation_advance_hours || 2
+      if reservation_datetime < required_hours.hours.from_now
+        errors.add(:base, "Reservations must be made at least #{required_hours} hours in advance")
       end
     end
   end
+
+  
   
   def num_people_within_time_slot_limit
     if num_people.present? && time_slot.present?
