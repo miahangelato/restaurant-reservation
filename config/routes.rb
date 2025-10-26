@@ -14,6 +14,8 @@ Rails.application.routes.draw do
   resources :reservations do
     collection do
       get :availability
+      get :calendar
+      get :available_tables
     end
   end
   
@@ -21,6 +23,7 @@ Rails.application.routes.draw do
   namespace :admin do
     get "/", to: "dashboard#index", as: :dashboard
     get "/calendar", to: "dashboard#calendar", as: :calendar
+    get "/time-slots-calendar", to: "dashboard#time_slots_calendar", as: :time_slots_calendar
     
     resources :reservations
     resources :time_slots

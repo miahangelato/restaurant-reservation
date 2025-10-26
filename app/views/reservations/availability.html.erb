@@ -2,7 +2,10 @@
 
 <div class="page-header">
   <h1>Check Availability</h1>
-  <%= link_to "Make a Reservation", new_reservation_path, class: "btn btn-primary" %>
+  <div class="header-buttons">
+    <%= link_to "📅 Calendar View", calendar_reservations_path, class: "btn btn-outline-secondary" %>
+    <%= link_to "Make a Reservation", new_reservation_path, class: "btn btn-primary" %>
+  </div>
 </div>
 
 <div class="availability-container">

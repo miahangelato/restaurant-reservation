@@ -39,6 +39,43 @@
   </div>
 </div>
 
+<div class="quick-actions">
+  <h3>Quick Actions</h3>
+  <div class="actions-grid">
+    <%= link_to admin_time_slots_calendar_path, class: "action-card" do %>
+      <div class="action-icon">🕒</div>
+      <div class="action-content">
+        <h4>Time Slots Calendar</h4>
+        <p>View and manage time slots availability</p>
+      </div>
+    <% end %>
+
+    <%= link_to admin_calendar_path, class: "action-card" do %>
+      <div class="action-icon">📅</div>
+      <div class="action-content">
+        <h4>Reservation Calendar</h4>
+        <p>View reservations by date</p>
+      </div>
+    <% end %>
+
+    <%= link_to new_admin_time_slot_path, class: "action-card" do %>
+      <div class="action-icon">➕</div>
+      <div class="action-content">
+        <h4>Add Time Slot</h4>
+        <p>Create new time slots</p>
+      </div>
+    <% end %>
+
+    <%= link_to admin_time_slots_path, class: "action-card" do %>
+      <div class="action-icon">⚙️</div>
+      <div class="action-content">
+        <h4>Manage Time Slots</h4>
+        <p>Edit existing time slots</p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
 <div class="dashboard-section">
   <div class="section-header">
     <h2>Today's Reservations (<%= Date.today.strftime("%B %d, %Y") %>)</h2>

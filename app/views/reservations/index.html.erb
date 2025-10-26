@@ -2,7 +2,10 @@
 
 <div class="page-header">
   <h1>My Reservations</h1>
-  <%= link_to "Make New Reservation", new_reservation_path, class: "btn btn-primary" %>
+  <div class="header-buttons">
+    <%= link_to "📅 View Calendar", calendar_reservations_path, class: "btn btn-outline-secondary" %>
+    <%= link_to "Make New Reservation", new_reservation_path, class: "btn btn-primary" %>
+  </div>
 </div>
 
 <div class="reservations-section">

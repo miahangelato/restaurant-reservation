@@ -1,0 +1,43 @@
+<% if available_tables.present? %>
+  <div class="table-selection">
+    <div class="table-grid">
+      <% available_tables.each do |table| %>
+        <div class="table-option">
+          <input type="radio" name="reservation[table_id]" value="<%= table.id %>" id="table_<%= table.id %>" class="table-radio">
+          <label for="table_<%= table.id %>" class="table-label">
+            <div class="table-card">
+              <div class="table-number">Table <%= table.table_number %></div>
+              <div class="table-capacity">👥 Up to <%= table.capacity %> people</div>
+              <div class="table-status">✅ Available</div>
+            </div>
+          </label>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>Selected Table</label>
+    <div class="selected-table-display">
+      <em>No table selected yet</em>
+    </div>
+  </div>
+<% else %>
+  <div class="alert alert-warning">
+    <strong>No tables available</strong> for your selected date and time. Please try a different time slot or date.
+  </div>
+<% end %>
+
+<script>
+// Update selected table display when radio button changes
+document.querySelectorAll('.table-radio').forEach(radio => {
+  radio.addEventListener('change', function() {
+    const tableId = this.value;
+    const tableNumber = this.closest('.table-option').querySelector('.table-number').textContent;
+    const tableCapacity = this.closest('.table-option').querySelector('.table-capacity').textContent;
+
+    document.querySelector('.selected-table-display').innerHTML =
+      `<strong>${tableNumber}</strong> (${tableCapacity.replace('👥 Up to ', '').replace(' people', ' capacity')})`;
+  });
+});
+</script>

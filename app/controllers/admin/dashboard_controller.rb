@@ -30,4 +30,51 @@ class Admin::DashboardController < Admin::BaseController
       @dates = (start_date..end_date).to_a
     end
   end
+  
+  def time_slots_calendar
+    @current_date = params[:date] ? Date.parse(params[:date]) : Date.today
+    @current_month = @current_date.beginning_of_month
+    @next_month = @current_month + 1.month
+    @prev_month = @current_month - 1.month
+    
+    @time_slots = TimeSlot.ordered
+    @min_date = Date.today
+    @max_date = Date.today + 3.months
+    
+    # Build calendar data for the current month
+    @calendar_data = build_time_slots_calendar_data(@current_month)
+  end
+  
+  private
+  
+  def build_time_slots_calendar_data(month)
+    start_date = month.beginning_of_month
+    end_date = month.end_of_month
+    
+    calendar = {}
+    
+    (start_date..end_date).each do |date|
+      availability_for_date = []
+      
+      @time_slots.each do |slot|
+        available_tables = slot.available_tables_for_date(date)
+        availability_for_date << {
+          time_slot: slot,
+          available_tables: available_tables,
+          available: available_tables > 0
+        }
+      end
+      
+      total_available = availability_for_date.count { |a| a[:available] }
+      
+      calendar[date] = {
+        availability: availability_for_date,
+        total_slots: @time_slots.count,
+        available_count: total_available,
+        has_availability: total_available > 0
+      }
+    end
+    
+    calendar
+  end
 end
