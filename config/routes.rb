@@ -35,6 +35,7 @@ Rails.application.routes.draw do
       end
     end
     resources :time_slots
+    resources :tables
   end
   
   # Health check

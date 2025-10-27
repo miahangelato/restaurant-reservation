@@ -2,7 +2,7 @@ class Admin::ReservationsController < Admin::BaseController
   before_action :set_reservation, only: [:show, :edit, :update, :destroy, :confirm]
   
   def index
-    @reservations = Reservation.includes(:user, :time_slot, :table).order(reservation_date: :desc, created_at: :desc)
+    @reservations = Reservation.includes(:user, :time_slot).order(reservation_date: :desc, created_at: :desc)
     
     # Filters
     if params[:status].present?
@@ -83,12 +83,11 @@ class Admin::ReservationsController < Admin::BaseController
   end
   
   def reservation_params
-    params.require(:reservation).permit(:user_id, :time_slot_id, :table_id, :reservation_date, :num_people, :contact_name, :contact_email, :contact_phone, :status)
+    params.require(:reservation).permit(:user_id, :time_slot_id, :reservation_date, :num_people, :contact_name, :contact_email, :contact_phone, :status)
   end
   
   def load_form_data
     @users = User.customers.order(:name)
     @time_slots = TimeSlot.ordered
-    @tables = Table.ordered
   end
 end

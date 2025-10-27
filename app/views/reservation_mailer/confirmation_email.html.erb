@@ -6,9 +6,7 @@
   <li><strong>Date:</strong> <%= @reservation.formatted_date %></li>
   <li><strong>Time:</strong> <%= @reservation.formatted_time %></li>
   <li><strong>Party size:</strong> <%= @reservation.num_people %></li>
-  <% if @reservation.table %>
-    <li><strong>Table:</strong> <%= @reservation.table.display_name %></li>
-  <% end %>
+
 </ul>
 
 <p>If you need to view or modify your reservation, please visit your account and go to "My Reservations".</p>

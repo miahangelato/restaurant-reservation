@@ -27,10 +27,7 @@
             <% if slot_reservations.any? %>
               <% slot_reservations.each do |reservation| %>
                 <div class="reservation-block status-<%= reservation.status %>">
-                  <strong><%= reservation.user.name %></strong> - <%= reservation.num_people %> people
-                  <% if reservation.table %>
-                    (<%= reservation.table.table_number %>)
-                  <% end %>
+                  <strong><%= reservation.user&.name || reservation.contact_name %></strong> - <%= reservation.num_people %> people
                   <%= link_to "View", admin_reservation_path(reservation), class: "view-link" %>
                 </div>
               <% end %>
@@ -40,7 +37,13 @@
           </div>
           
           <div class="slot-availability">
-            <%= time_slot.available_tables_for_date(@date) %> / <%= time_slot.max_tables %> available
+            <% available_tables = time_slot.available_tables_for_date(@date) %>
+            <% total_tables = Table.count %>
+            <% if available_tables.any? %>
+              <span class="badge bg-success"><%= available_tables.count %>/<%= total_tables %> available</span>
+            <% else %>
+              <span class="badge bg-danger"><%= total_tables %>/<%= total_tables %> occupied</span>
+            <% end %>
           </div>
         </div>
       <% end %>

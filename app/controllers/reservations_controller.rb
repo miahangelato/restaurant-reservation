@@ -27,6 +27,7 @@ class ReservationsController < ApplicationController
     @reservation = Reservation.new
     @reservation.reservation_date = params[:date] if params[:date]
     @reservation.time_slot_id = params[:time_slot_id] if params[:time_slot_id]
+    @reservation.num_people = params[:num_people] if params[:num_people]
     load_availability_data
   end
   
@@ -45,6 +46,7 @@ class ReservationsController < ApplicationController
         contact_name: @reservation.contact_name,
         contact_email: @reservation.contact_email,
         contact_phone: @reservation.contact_phone,
+        table_id: @reservation.table_id,
         user_id: current_user&.id
       }
       redirect_to confirm_reservations_path
@@ -268,20 +270,26 @@ class ReservationsController < ApplicationController
       
       @time_slots.each do |slot|
         available_tables = slot.available_tables_for_date(date)
+        total_tables = Table.count
+        occupied_tables = total_tables - available_tables.count
+        
         availability_for_date << {
           time_slot: slot,
           available_tables: available_tables,
-          available: available_tables > 0
+          available_count: available_tables.count,
+          occupied_count: occupied_tables,
+          total_tables: total_tables,
+          available: available_tables.any?
         }
       end
       
-      total_available = availability_for_date.count { |a| a[:available] }
+      total_available_slots = availability_for_date.count { |a| a[:available] }
       
       calendar[date] = {
         availability: availability_for_date,
         total_slots: @time_slots.count,
-        available_count: total_available,
-        has_availability: total_available > 0
+        available_count: total_available_slots,
+        has_availability: total_available_slots > 0
       }
     end
     
@@ -293,35 +301,46 @@ class ReservationsController < ApplicationController
     @min_date = Date.today
     @max_date = Date.today + 3.months
     
-    # If a specific date is set, filter based on 2-hour rule and create availability data
-    if @reservation&.reservation_date.present?
+    # If a specific date and party size are set, load available tables
+    if @reservation&.reservation_date.present? && @reservation&.num_people.present?
       @time_slot_availability = {}
       
       @time_slots.each do |slot|
         is_future_valid = at_least_two_hours_ahead?(@reservation.reservation_date, slot)
-        available_tables = is_future_valid ? slot.available_tables_for_date(@reservation.reservation_date) : 0
+        available_tables = is_future_valid ? slot.available_tables_for_date(@reservation.reservation_date, @reservation.num_people) : []
         
         @time_slot_availability[slot.id] = {
           slot: slot,
           is_future_valid: is_future_valid,
           available_tables: available_tables,
-          is_available: available_tables > 0 && is_future_valid,
-          is_fully_booked: available_tables == 0
+          is_available: available_tables.any? && is_future_valid,
+          is_fully_booked: available_tables.empty?
         }
       end
       
-      # Keep all slots for display but filter for selection
+      # Filter time slots to show only those with available tables
       @available_time_slots = @time_slots.select do |slot|
         availability = @time_slot_availability[slot.id]
         availability[:is_available]
       end
+      
+      # If a specific time slot is selected, load available tables for that slot
+      if @reservation.time_slot_id.present?
+        selected_slot = @time_slots.find { |slot| slot.id == @reservation.time_slot_id }
+        if selected_slot && @time_slot_availability[@reservation.time_slot_id]
+          @available_tables = @time_slot_availability[@reservation.time_slot_id][:available_tables]
+        else
+          @available_tables = []
+        end
+      end
     else
       @available_time_slots = @time_slots
+      @available_tables = []
     end
   end
   
   def reservation_params
-    params.require(:reservation).permit(:time_slot_id, :reservation_date, :num_people, :contact_name, :contact_email, :contact_phone)
+    params.require(:reservation).permit(:time_slot_id, :reservation_date, :num_people, :contact_name, :contact_email, :contact_phone, :table_id)
   end
 
   # Returns true if the given date + time_slot is at least 2 hours in the future.

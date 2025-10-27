@@ -5,9 +5,7 @@ Thanks for your reservation at Restaurant Reservation. Here are the details:
 Date: <%= @reservation.formatted_date %>
 Time: <%= @reservation.formatted_time %>
 Party size: <%= @reservation.num_people %>
-<% if @reservation.table %>
-Table: <%= @reservation.table.display_name %>
-<% end %>
+
 
 To view or modify your reservation, please sign in and visit "My Reservations".
 

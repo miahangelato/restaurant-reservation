@@ -29,3 +29,6 @@
 
 en:
   hello: "Hello world"
+  reservation_mailer:
+    confirmation_subject: "Reservation Confirmed at %{restaurant} for %{date} at %{time}"
+    cancellation_subject: "Reservation Cancelled at %{restaurant} for %{date} at %{time}"

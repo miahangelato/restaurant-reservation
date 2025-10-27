@@ -35,9 +35,9 @@
               </div>
             <% end %>
             
-            <!-- Step 1: Date & Time -->
+            <!-- Step 1: Date & Party Size -->
             <div class="mb-4">
-              <h5 class="border-bottom pb-2 mb-3">1. Select Date & Time</h5>
+              <h5 class="border-bottom pb-2 mb-3">1. Select Date & Party Size</h5>
               
               <div class="row g-3">
                 <div class="col-md-6">
@@ -52,43 +52,6 @@
                 </div>
                 
                 <div class="col-md-6">
-                  <label for="reservation_time_slot_id" class="form-label fw-semibold">Time Slot</label>
-                  <% if @time_slot_availability.present? %>
-                    <select name="reservation[time_slot_id]" id="reservation_time_slot_id" class="form-select form-select-lg" required data-action="change->reservations#timeSlotChanged" data-reservations-target="timeSlotField">
-                      <option value="">Select a time</option>
-                      <% @time_slots.each do |slot| %>
-                        <% availability = @time_slot_availability[slot.id] %>
-                        <% if availability[:is_available] %>
-                          <option value="<%= slot.id %>" <%= 'selected' if @reservation.time_slot_id == slot.id %>>
-                            <%= slot.formatted_time %> (max <%= slot.max_people_per_table %> people)
-                          </option>
-                        <% else %>
-                          <option value="" disabled style="text-decoration: line-through; color: #6c757d;">
-                            <%= slot.formatted_time %> 
-                            <% if !availability[:is_future_valid] %>
-                              (too soon - 2hr rule)
-                            <% elsif availability[:is_fully_booked] %>
-                              (fully booked)
-                            <% else %>
-                              (unavailable)
-                            <% end %>
-                          </option>
-                        <% end %>
-                      <% end %>
-                    </select>
-                  <% else %>
-                    <%= f.select :time_slot_id, 
-                        options_from_collection_for_select(@available_time_slots || @time_slots, :id, 
-                          lambda { |slot| "#{slot.formatted_time} (max #{slot.max_people_per_table} people)" }, 
-                          @reservation.time_slot_id),
-                        { prompt: "Select a time" },
-                        { class: "form-select form-select-lg", required: true, data: { action: "change->reservations#timeSlotChanged", reservations_target: "timeSlotField" } } %>
-                  <% end %>
-                </div>
-              </div>
-              
-              <div class="row g-3 mt-2">
-                <div class="col-md-6">
                   <label for="reservation_num_people" class="form-label fw-semibold">Number of People</label>
                   <%= f.number_field :num_people, 
                       class: "form-control form-control-lg", 
@@ -96,25 +59,104 @@
                       placeholder: "How many people?",
                       required: true,
                       data: { action: "change->reservations#numPeopleChanged", reservations_target: "numPeopleField" } %>
-                  <% if @reservation.time_slot_id.present? %>
-                    <% selected_slot = @time_slots.find { |ts| ts.id == @reservation.time_slot_id.to_i } %>
-                    <% if selected_slot %>
-                      <div class="form-text">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="me-1" viewBox="0 0 16 16">
-                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                          <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
-                        </svg>
-                        Maximum <%= selected_slot.max_people_per_table %> people per table for this time slot
-                      </div>
-                    <% end %>
-                  <% end %>
+                  <div class="form-text">This determines which time slots and tables are available</div>
                 </div>
               </div>
             </div>
             
-            <!-- Step 2: Contact Information -->
+            <!-- Step 2: Time Slot Selection -->
+            <div class="mb-4" id="time-slot-section" style="<%= 'display: none;' unless @reservation.reservation_date.present? && @reservation.num_people.present? %>">
+              <h5 class="border-bottom pb-2 mb-3">2. Select Time Slot</h5>
+              
+              <% if @time_slot_availability.present? %>
+                <div class="row g-3">
+                  <div class="col-12">
+                    <select name="reservation[time_slot_id]" id="reservation_time_slot_id" class="form-select form-select-lg" required data-action="change->reservations#timeSlotChanged" data-reservations-target="timeSlotField">
+                      <option value="">Select a time</option>
+                      <% @time_slots.each do |slot| %>
+                        <% availability = @time_slot_availability[slot.id] %>
+                        <% if availability[:is_available] %>
+                          <option value="<%= slot.id %>" <%= 'selected' if @reservation.time_slot_id == slot.id %>>
+                            <%= slot.formatted_time %> - <%= availability[:available_tables].count %> <%= 'table'.pluralize(availability[:available_tables].count) %> available
+                          </option>
+                        <% else %>
+                          <option value="" disabled style="text-decoration: line-through; color: #6c757d;">
+                            <%= slot.formatted_time %> 
+                            <% if !availability[:is_future_valid] %>
+                              (too soon - 2hr rule)
+                            <% elsif availability[:is_fully_booked] %>
+                              (no tables available for <%= @reservation.num_people %> people)
+                            <% else %>
+                              (unavailable)
+                            <% end %>
+                          </option>
+                        <% end %>
+                      <% end %>
+                    </select>
+                    <div class="form-text">Only showing time slots with available tables for <%= @reservation.num_people || 'your party size' %></div>
+                  </div>
+                </div>
+              <% else %>
+                <div class="alert alert-info">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="me-2" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                  </svg>
+                  Please select a date and number of people to see available time slots.
+                </div>
+              <% end %>
+            </div>
+            
+            <!-- Step 3: Table Selection -->
+            <div class="mb-4" id="table-selection-section" style="<%= 'display: none;' unless @available_tables&.any? %>">
+              <h5 class="border-bottom pb-2 mb-3">3. Select Your Table</h5>
+              
+              <% if @available_tables&.any? %>
+                <div class="row g-3">
+                  <% @available_tables.each do |table| %>
+                    <div class="col-md-6 col-lg-4">
+                      <div class="card table-option border-2" data-table-id="<%= table.id %>">
+                        <div class="card-body text-center">
+                          <div class="form-check">
+                            <%= f.radio_button :table_id, table.id, 
+                                class: "form-check-input", 
+                                required: true,
+                                data: { action: "change->reservations#tableSelected" } %>
+                            <label class="form-check-label" for="reservation_table_id_<%= table.id %>">
+                              <div class="table-info">
+                                <h6 class="mb-1">Table <%= table.table_number %></h6>
+                                <div class="text-muted small">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+                                    <path d="M7 14s-3-4-3-8a3 3 0 1 1 6 0c0 4-3 8-3 8z"/>
+                                    <circle cx="7" cy="6" r="2"/>
+                                  </svg>
+                                  Seats up to <%= table.capacity %> people
+                                </div>
+                                <% if @reservation.num_people.present? && @reservation.num_people <= table.capacity %>
+                                  <div class="badge bg-success mt-2">Perfect fit!</div>
+                                <% end %>
+                              </div>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              <% else %>
+                <div class="alert alert-info">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="me-2" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                  </svg>
+                  Please select a date, time, and number of people to see available tables.
+                </div>
+              <% end %>
+            </div>
+            
+            <!-- Step 4: Contact Information -->
             <div class="mb-4">
-              <h5 class="border-bottom pb-2 mb-3">2. Contact Information</h5>
+              <h5 class="border-bottom pb-2 mb-3">4. Contact Information</h5>
               
               <div class="row g-3">
                 <div class="col-12">
@@ -176,3 +218,46 @@
     </div>
   </div>
 </div>
+
+<style>
+  .table-option {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-color: #dee2e6 !important;
+  }
+  
+  .table-option:hover {
+    border-color: #0d6efd !important;
+    box-shadow: 0 0.125rem 0.25rem rgba(13, 110, 253, 0.075);
+  }
+  
+  .table-option input[type="radio"]:checked + label {
+    color: #0d6efd;
+  }
+  
+  .table-option:has(input[type="radio"]:checked) {
+    border-color: #0d6efd !important;
+    background-color: rgba(13, 110, 253, 0.05);
+    box-shadow: 0 0.125rem 0.25rem rgba(13, 110, 253, 0.15);
+  }
+  
+  .table-info h6 {
+    font-weight: 600;
+  }
+  
+  #time-slot-section {
+    display: none;
+  }
+  
+  #time-slot-section.show {
+    display: block;
+  }
+  
+  #table-selection-section {
+    display: none;
+  }
+  
+  #table-selection-section.show {
+    display: block;
+  }
+</style>

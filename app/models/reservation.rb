@@ -3,6 +3,7 @@ class Reservation < ApplicationRecord
   # Allow reservations to be created by guest (anonymous) users; user is optional
   belongs_to :user, optional: true
   belongs_to :time_slot
+  belongs_to :table, optional: true
   
   # Validations
   validates :reservation_date, presence: true
@@ -11,9 +12,12 @@ class Reservation < ApplicationRecord
   validates :contact_email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :contact_phone, presence: true
   validates :status, presence: true, inclusion: { in: %w[pending confirmed cancelled] }
+  validates :table_id, presence: true, if: :table_selection_required?
   validate :reservation_date_cannot_be_in_past
   validate :reservation_must_be_at_least_2_hours_in_advance
   validate :num_people_within_time_slot_limit
+  validate :table_can_accommodate_party_size
+  validate :table_is_available_for_slot
   
   # Callbacks
   before_validation :set_default_contact_info, on: :create
@@ -139,5 +143,29 @@ class Reservation < ApplicationRecord
         errors.add(:num_people, "cannot exceed #{time_slot.max_people_per_table} people per table")
       end
     end
+  end
+  
+  def table_can_accommodate_party_size
+    if table.present? && num_people.present?
+      if num_people > table.capacity
+        errors.add(:table_id, "cannot accommodate #{num_people} people (capacity: #{table.capacity})")
+      end
+    end
+  end
+  
+  def table_is_available_for_slot
+    if table.present? && time_slot.present? && reservation_date.present?
+      # Skip validation if this is the same reservation being updated
+      return if persisted? && table_id_was == table_id
+      
+      unless table.available_for_slot?(time_slot_id, reservation_date)
+        errors.add(:table_id, "is already reserved for this time slot")
+      end
+    end
+  end
+  
+  def table_selection_required?
+    # Require table selection for new reservations with complete date/time info
+    !persisted? && reservation_date.present? && time_slot_id.present?
   end
 end

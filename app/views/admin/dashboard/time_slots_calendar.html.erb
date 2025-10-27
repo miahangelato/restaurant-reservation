@@ -117,6 +117,9 @@
                         <%
                           time_slot = slot_data[:time_slot]
                           available_tables = slot_data[:available_tables]
+                          available_count = slot_data[:available_count]
+                          occupied_count = slot_data[:occupied_count]
+                          total_tables = slot_data[:total_tables]
                           is_available = slot_data[:available]
                         %>
 
@@ -126,17 +129,19 @@
                               <%= time_slot.formatted_time %>
                             </div>
                             <div class="capacity text-muted">
-                              Max <%= time_slot.max_people_per_table %> people per table • <%= time_slot.max_tables %> tables total
+                              Max <%= time_slot.max_people_per_table %> people per table
                             </div>
                           </div>
 
                           <div class="slot-availability">
                             <% if is_available %>
                               <span class="badge bg-success">
-                                <%= available_tables %> available
+                                <%= available_count %>/<%= total_tables %> available
                               </span>
                             <% else %>
-                              <span class="badge bg-danger">Fully Booked</span>
+                              <span class="badge bg-danger">
+                                <%= occupied_count %>/<%= total_tables %> occupied
+                              </span>
                             <% end %>
                           </div>
 

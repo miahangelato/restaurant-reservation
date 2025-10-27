@@ -5,9 +5,7 @@ Your reservation at Restaurant Reservation has been cancelled. Details below:
 Date: <%= @reservation.formatted_date %>
 Time: <%= @reservation.formatted_time %>
 Party size: <%= @reservation.num_people %>
-<% if @reservation.table %>
-Table: <%= @reservation.table.display_name %>
-<% end %>
+
 Cancelled at: <%= (@reservation.cancelled_at || Time.zone.now).strftime("%B %d, %Y at %I:%M %p") %>
 
 If you believe this was a mistake, please contact us or create a new reservation.

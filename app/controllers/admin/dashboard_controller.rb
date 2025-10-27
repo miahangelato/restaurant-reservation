@@ -8,6 +8,10 @@ class Admin::DashboardController < Admin::BaseController
     @today_count = @today_reservations.count
     @week_count = Reservation.confirmed.for_date_range(Date.today, Date.today + 7.days).count
     @month_count = Reservation.confirmed.for_date_range(Date.today, Date.today + 30.days).count
+    
+    # Table statistics
+    @total_tables = Table.count
+    @available_tables_today = Table.count - @today_reservations.where.not(table_id: nil).distinct.count(:table_id)
   end
   
   def calendar
@@ -58,20 +62,26 @@ class Admin::DashboardController < Admin::BaseController
       
       @time_slots.each do |slot|
         available_tables = slot.available_tables_for_date(date)
+        total_tables = Table.count
+        occupied_tables = total_tables - available_tables.count
+        
         availability_for_date << {
           time_slot: slot,
           available_tables: available_tables,
-          available: available_tables > 0
+          available_count: available_tables.count,
+          occupied_count: occupied_tables,
+          total_tables: total_tables,
+          available: available_tables.any?
         }
       end
       
-      total_available = availability_for_date.count { |a| a[:available] }
+      total_available_slots = availability_for_date.count { |a| a[:available] }
       
       calendar[date] = {
         availability: availability_for_date,
         total_slots: @time_slots.count,
-        available_count: total_available,
-        has_availability: total_available > 0
+        available_count: total_available_slots,
+        has_availability: total_available_slots > 0
       }
     end
     

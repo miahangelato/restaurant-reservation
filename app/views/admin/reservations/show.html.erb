@@ -35,13 +35,6 @@
     </div>
     
     <div class="detail-row">
-      <div class="detail-label">Table:</div>
-      <div class="detail-value">
-        <%= @reservation.table ? @reservation.table.display_name : 'Not assigned' %>
-      </div>
-    </div>
-    
-    <div class="detail-row">
       <div class="detail-label">Created At:</div>
       <div class="detail-value"><%= @reservation.created_at.strftime("%B %d, %Y at %I:%M %p") %></div>
     </div>

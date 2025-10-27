@@ -592,155 +592,57 @@ body {
 
 /* Admin Layout */
 .admin-body {
-  background-color: #f4f6f9;
-}
-
-.admin-container {
-  display: flex;
-  max-width: 1400px;
-  margin: 0 auto;
-  gap: 2rem;
-  padding: 2rem 1rem;
-}
-
-.admin-sidebar {
-  flex: 0 0 250px;
-  background: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  height: fit-content;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  position: sticky;
-  top: 1rem;
-}
-
-.admin-sidebar h3 {
-  margin-bottom: 1rem;
-  color: #2c3e50;
-}
-
-.sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.sidebar-link {
-  padding: 0.75rem 1rem;
-  border-radius: 4px;
-  text-decoration: none;
-  color: #555;
-  transition: all 0.2s;
-}
-
-.sidebar-link:hover {
   background-color: #f8f9fa;
-  color: #3498db;
 }
 
-.sidebar-link.active {
-  background-color: #3498db;
-  color: white;
+/* Clean admin header styling */
+.admin-navbar {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.admin-content {
-  flex: 1;
+/* Compact admin cards */
+.admin-stats-card {
+  transition: transform 0.2s ease;
 }
 
-.admin-page-header {
-  margin-bottom: 2rem;
+.admin-stats-card:hover {
+  transform: translateY(-2px);
 }
 
-.admin-page-header h1 {
-  font-size: 2rem;
-  color: #2c3e50;
-  margin-bottom: 0.5rem;
+/* Clean table styling for admin */
+.table-hover tbody tr:hover {
+  background-color: rgba(0,123,255,0.05);
 }
 
-/* Stats Grid */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 3rem;
+.card {
+  border: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
-.stat-card {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+.card-header {
+  border-bottom: 1px solid #e9ecef;
+  font-weight: 500;
 }
 
-.stat-card.highlight {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+/* Badge improvements */
+.badge {
+  font-size: 0.8em;
+  font-weight: 500;
 }
 
-.stat-icon {
-  font-size: 2.5rem;
-}
+/* Stats and Dashboard - now using Bootstrap components */
 
-.stat-content h3 {
-  font-size: 2rem;
-  margin: 0;
-}
-
-.stat-content p {
-  margin: 0;
-  opacity: 0.8;
-}
-
-/* Dashboard Section */
-.dashboard-section {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  margin-bottom: 2rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.section-header h2 {
-  color: #2c3e50;
-  margin: 0;
-}
-
-/* Tables */
-.table-responsive {
-  overflow-x: auto;
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.data-table th {
-  background-color: #f8f9fa;
-  padding: 0.75rem;
-  text-align: left;
+/* Table improvements - using Bootstrap tables now */
+.table th {
   font-weight: 600;
-  color: #2c3e50;
-  border-bottom: 2px solid #dee2e6;
+  color: #495057;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.data-table td {
-  padding: 0.75rem;
-  border-bottom: 1px solid #dee2e6;
-}
-
-.data-table tr:hover {
-  background-color: #f8f9fa;
+.table td {
+  vertical-align: middle;
 }
 
 /* Calendar */

@@ -28,7 +28,7 @@
     <div class="time-slots-grid">
       <% @availability.each do |slot_data| %>
         <% time_slot = slot_data[:time_slot] %>
-        <% available_tables = slot_data[:available_tables] %>
+        <% available_slots = slot_data[:available_slots] %>
         <% is_available = slot_data[:available] %>
         
         <div class="time-slot-card <%= is_available ? 'available' : 'unavailable' %>">
@@ -40,7 +40,7 @@
             <p class="availability-status">
               <% if is_available %>
                 <span class="status-icon">✅</span>
-                <strong><%= available_tables %></strong> <%= "table".pluralize(available_tables) %> available
+                <strong>Available</strong>
               <% else %>
                 <span class="status-icon">❌</span>
                 <strong>Fully Booked</strong>

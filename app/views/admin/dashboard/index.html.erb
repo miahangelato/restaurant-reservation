@@ -1,162 +1,194 @@
 <% content_for :title, "Admin Dashboard - Restaurant Reservation System" %>
 
-<div class="admin-page-header">
-  <h1>Dashboard</h1>
-  <p class="text-muted">Overview of your restaurant reservations</p>
-</div>
-
-<div class="stats-grid">
-  <div class="stat-card">
-    <div class="stat-icon">📊</div>
-    <div class="stat-content">
-      <h3><%= @total_reservations %></h3>
-      <p>Total Reservations</p>
-    </div>
-  </div>
-  
-  <div class="stat-card highlight">
-    <div class="stat-icon">📅</div>
-    <div class="stat-content">
-      <h3><%= @today_count %></h3>
-      <p>Today's Reservations</p>
-    </div>
-  </div>
-  
-  <div class="stat-card">
-    <div class="stat-icon">📈</div>
-    <div class="stat-content">
-      <h3><%= @week_count %></h3>
-      <p>This Week</p>
-    </div>
-  </div>
-  
-  <div class="stat-card">
-    <div class="stat-icon">📆</div>
-    <div class="stat-content">
-      <h3><%= @month_count %></h3>
-      <p>This Month</p>
-    </div>
-  </div>
-</div>
-
-<div class="quick-actions">
-  <h3>Quick Actions</h3>
-  <div class="actions-grid">
-    <%= link_to admin_time_slots_calendar_path, class: "action-card" do %>
-      <div class="action-icon">🕒</div>
-      <div class="action-content">
-        <h4>Time Slots Calendar</h4>
-        <p>View and manage time slots availability</p>
-      </div>
-    <% end %>
-
-    <%= link_to admin_calendar_path, class: "action-card" do %>
-      <div class="action-icon">📅</div>
-      <div class="action-content">
-        <h4>Reservation Calendar</h4>
-        <p>View reservations by date</p>
-      </div>
-    <% end %>
-
-    <%= link_to new_admin_time_slot_path, class: "action-card" do %>
-      <div class="action-icon">➕</div>
-      <div class="action-content">
-        <h4>Add Time Slot</h4>
-        <p>Create new time slots</p>
-      </div>
-    <% end %>
-
-    <%= link_to admin_time_slots_path, class: "action-card" do %>
-      <div class="action-icon">⚙️</div>
-      <div class="action-content">
-        <h4>Manage Time Slots</h4>
-        <p>Edit existing time slots</p>
-      </div>
-    <% end %>
-  </div>
-</div>
-
-<div class="dashboard-section">
-  <div class="section-header">
-    <h2>Today's Reservations (<%= Date.today.strftime("%B %d, %Y") %>)</h2>
-    <%= link_to "View All", admin_reservations_path(date: Date.today), class: "btn btn-secondary" %>
-  </div>
-  
-  <% if @today_reservations.any? %>
-    <div class="table-responsive">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Time</th>
-            <th>Customer</th>
-            <th>Party Size</th>
-            <th>Table</th>
-            <th>Contact</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @today_reservations.each do |reservation| %>
-            <tr>
-              <td><strong><%= reservation.formatted_time %></strong></td>
-              <td><%= reservation.user.name %></td>
-              <td><%= reservation.num_people %> people</td>
-              <td><%= reservation.table ? reservation.table.display_name : 'N/A' %></td>
-              <td><%= reservation.contact_phone %></td>
-              <td><span class="badge badge-<%= reservation.status %>"><%= reservation.status.titleize %></span></td>
-            </tr>
+<div class="container-fluid px-5 py-4">
+  <div class="row">
+    <div class="col-12">
+      <!-- Page Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h1 class="h3 mb-1">Admin Dashboard</h1>
+          <p class="text-muted mb-0">Overview of your restaurant reservations</p>
+        </div>
+        <div>
+          <%= link_to admin_time_slots_calendar_path, class: "btn btn-primary" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+              <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+            </svg>
+            Time Slots Calendar
           <% end %>
-        </tbody>
-      </table>
-    </div>
-  <% else %>
-    <div class="empty-state">
-      <p>No reservations for today.</p>
-    </div>
-  <% end %>
-</div>
+        </div>
+      </div>
 
-<div class="dashboard-section">
-  <div class="section-header">
-    <h2>Upcoming Reservations</h2>
-    <%= link_to "View All", admin_reservations_path, class: "btn btn-secondary" %>
-  </div>
-  
-  <% if @upcoming_reservations.any? %>
-    <div class="table-responsive">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Date & Time</th>
-            <th>Customer</th>
-            <th>Party Size</th>
-            <th>Table</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @upcoming_reservations.each do |reservation| %>
-            <tr>
-              <td>
-                <strong><%= reservation.formatted_date %></strong><br>
-                <small><%= reservation.formatted_time %></small>
-              </td>
-              <td><%= reservation.user.name %></td>
-              <td><%= reservation.num_people %> people</td>
-              <td><%= reservation.table ? reservation.table.display_name : 'N/A' %></td>
-              <td><span class="badge badge-<%= reservation.status %>"><%= reservation.status.titleize %></span></td>
-              <td>
-                <%= link_to "View", admin_reservation_path(reservation), class: "btn btn-sm btn-secondary" %>
-              </td>
-            </tr>
+      <!-- Statistics Cards -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-6 col-lg-3">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+              <div class="fs-1 mb-2">📊</div>
+              <h3 class="h4 mb-1 fw-bold"><%= @total_reservations %></h3>
+              <p class="text-muted mb-0 small">Total Reservations</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3">
+          <div class="card border-0 shadow-sm border-primary">
+            <div class="card-body text-center">
+              <div class="fs-1 mb-2">📅</div>
+              <h3 class="h4 mb-1 fw-bold text-primary"><%= @today_count %></h3>
+              <p class="text-muted mb-0 small">Today's Reservations</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+              <div class="fs-1 mb-2">📈</div>
+              <h3 class="h4 mb-1 fw-bold"><%= @week_count %></h3>
+              <p class="text-muted mb-0 small">This Week</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+              <div class="fs-1 mb-2">🪑</div>
+              <h3 class="h4 mb-1 fw-bold"><%= @available_tables_today %>/<%= @total_tables %></h3>
+              <p class="text-muted mb-0 small">Available Tables</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      
+      <!-- Today's Reservations -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <h3 class="h5 mb-0">Today's Reservations (<%= Date.today.strftime("%B %d, %Y") %>)</h3>
+          <%= link_to "View All", admin_reservations_path(date: Date.today), class: "btn btn-sm btn-outline-primary" %>
+        </div>
+        <div class="card-body p-0">
+          <% if @today_reservations.any? %>
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th class="border-0">Time</th>
+                    <th class="border-0">Table</th>
+                    <th class="border-0">Customer</th>
+                    <th class="border-0">Party Size</th>
+                    <th class="border-0">Contact</th>
+                    <th class="border-0">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @today_reservations.each do |reservation| %>
+                    <tr>
+                      <td><strong><%= reservation.formatted_time %></strong></td>
+                      <td>
+                        <% if reservation.table %>
+                          Table <%= reservation.table.table_number %>
+                          <small class="text-muted d-block">(cap. <%= reservation.table.capacity %>)</small>
+                        <% else %>
+                          <span class="text-muted">No table</span>
+                        <% end %>
+                      </td>
+                      <td><%= reservation.user&.name || reservation.contact_name %></td>
+                      <td><%= reservation.num_people %> people</td>
+                      <td><%= reservation.contact_phone %></td>
+                      <td>
+                        <% case reservation.status %>
+                        <% when 'confirmed' %>
+                          <span class="badge bg-success"><%= reservation.status.titleize %></span>
+                        <% when 'pending' %>
+                          <span class="badge bg-warning"><%= reservation.status.titleize %></span>
+                        <% when 'cancelled' %>
+                          <span class="badge bg-danger"><%= reservation.status.titleize %></span>
+                        <% else %>
+                          <span class="badge bg-secondary"><%= reservation.status.titleize %></span>
+                        <% end %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% else %>
+            <div class="text-center py-5">
+              <div class="text-muted mb-2">📅</div>
+              <p class="text-muted mb-0">No reservations for today.</p>
+            </div>
           <% end %>
-        </tbody>
-      </table>
+        </div>
+      </div>
+
+      <!-- Upcoming Reservations -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <h3 class="h5 mb-0">Upcoming Reservations</h3>
+          <%= link_to "View All", admin_reservations_path, class: "btn btn-sm btn-outline-primary" %>
+        </div>
+        <div class="card-body p-0">
+          <% if @upcoming_reservations.any? %>
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th class="border-0">Date & Time</th>
+                    <th class="border-0">Table</th>
+                    <th class="border-0">Customer</th>
+                    <th class="border-0">Party Size</th>
+                    <th class="border-0">Status</th>
+                    <th class="border-0">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @upcoming_reservations.each do |reservation| %>
+                    <tr>
+                      <td>
+                        <strong><%= reservation.formatted_date %></strong><br>
+                        <small class="text-muted"><%= reservation.formatted_time %></small>
+                      </td>
+                      <td>
+                        <% if reservation.table %>
+                          Table <%= reservation.table.table_number %>
+                          <small class="text-muted d-block">(cap. <%= reservation.table.capacity %>)</small>
+                        <% else %>
+                          <span class="text-muted">No table</span>
+                        <% end %>
+                      </td>
+                      <td><%= reservation.user&.name || reservation.contact_name %></td>
+                      <td><%= reservation.num_people %> people</td>
+                      <td>
+                        <% case reservation.status %>
+                        <% when 'confirmed' %>
+                          <span class="badge bg-success"><%= reservation.status.titleize %></span>
+                        <% when 'pending' %>
+                          <span class="badge bg-warning"><%= reservation.status.titleize %></span>
+                        <% when 'cancelled' %>
+                          <span class="badge bg-danger"><%= reservation.status.titleize %></span>
+                        <% else %>
+                          <span class="badge bg-secondary"><%= reservation.status.titleize %></span>
+                        <% end %>
+                      </td>
+                      <td>
+                        <%= link_to "View", admin_reservation_path(reservation), class: "btn btn-sm btn-outline-primary" %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% else %>
+            <div class="text-center py-5">
+              <div class="text-muted mb-2">📅</div>
+              <p class="text-muted mb-0">No upcoming reservations.</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
     </div>
-  <% else %>
-    <div class="empty-state">
-      <p>No upcoming reservations.</p>
-    </div>
-  <% end %>
+  </div>
 </div>

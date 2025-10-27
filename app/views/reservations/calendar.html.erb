@@ -121,6 +121,8 @@
                         <%
                           time_slot = slot_data[:time_slot]
                           available_tables = slot_data[:available_tables]
+                          available_count = slot_data[:available_count]
+                          total_tables = slot_data[:total_tables]
                           is_available = slot_data[:available]
                         %>
                         
@@ -139,7 +141,7 @@
                               
                               <div class="slot-availability">
                                 <span class="badge bg-success">
-                                  <%= available_tables %> <%= "table".pluralize(available_tables) %>
+                                  <%= available_count %>/<%= total_tables %> tables
                                 </span>
                               </div>
                             </div>
