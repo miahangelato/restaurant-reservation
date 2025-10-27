@@ -79,7 +79,7 @@ class Reservation < ApplicationRecord
     recipient = contact_email.presence || user&.email
     return unless recipient.present?
 
-    ReservationMailer.with(reservation: self).confirmation_email.deliver_later
+    ReservationMailer.with(reservation: self).confirmation_email.deliver_now
   end
 
   # Prepare a guest access token and store its digest and expiry on the reservation record.

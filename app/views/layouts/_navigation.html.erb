@@ -24,6 +24,10 @@
             <li class="nav-item">
               <%= link_to "Time Slots", admin_time_slots_path, class: "nav-link text-white" %>
             </li>
+            <li class="nav-item">
+              <%= link_to "Logout", logout_path, method: :delete, class: "nav-link text-white", 
+                  data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to logout?" } %>
+            </li>
           <% else %>
             <li class="nav-item">
               <%= link_to "My Reservations", reservations_path, class: "nav-link text-white" %>
