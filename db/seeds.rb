@@ -95,11 +95,14 @@ customers = User.customers
     reservation_datetime = Time.zone.parse("#{date} #{time_slot.time}")
     next if reservation_datetime < 2.hours.from_now
     
-    # Find an available table
-    available_table = Table.all.find { |t| t.available_for_slot?(time_slot.id, date) }
-    next unless available_table
-    
+    # Generate party size first
     num_people = rand(2..6)
+    
+    # Find an available table that can accommodate the party size
+    available_table = Table.all.find do |t| 
+      t.capacity >= num_people && t.available_for_slot?(time_slot.id, date)
+    end
+    next unless available_table
     
     Reservation.create!(
       user: customer,
