@@ -1,28 +1,40 @@
 <% content_for :title, "Login - Restaurant Reservation System" %>
+<% content_for :hide_nav_footer, true %>
 
-<div class="auth-container">
-  <div class="auth-card">
-    <h1>Login</h1>
-    <p class="text-muted">Welcome back! Please login to your account.</p>
-    
-    <%= form_with url: login_path, method: :post, class: "auth-form" do |f| %>
-      <div class="form-group">
-        <%= f.label :email, "Email Address" %>
-        <%= f.email_field :email, class: "form-control", placeholder: "your@email.com", required: true, autofocus: true %>
+<div class="container" style="height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+  <div class="row justify-content-center w-100">
+    <div class="col-md-5">
+      <div class="card shadow">
+        <div class="card-body p-5">
+          <div class="text-center mb-4">
+            <h2 class="mb-2">🍽️ Restaurant Reservation</h2>
+            <p class="text-muted">Sign in to continue</p>
+          </div>
+          
+          <%= form_with url: login_path, method: :post, local: true do |f| %>
+            <div class="mb-3">
+              <%= f.label :email, "Email Address", class: "form-label" %>
+              <%= f.email_field :email, class: "form-control", placeholder: "your@email.com", required: true, autofocus: true %>
+            </div>
+            
+            <div class="mb-4">
+              <%= f.label :password, "Password", class: "form-label" %>
+              <%= f.password_field :password, class: "form-control", placeholder: "Enter your password", required: true %>
+            </div>
+            
+            <div class="d-grid">
+              <%= f.submit "Login", class: "btn btn-primary btn-lg" %>
+            </div>
+          <% end %>
+          
+          <hr class="my-4">
+          
+          <div class="text-center">
+            <p class="mb-0">Don't have an account? <%= link_to "Sign up here", signup_path, class: "text-decoration-none" %></p>
+          </div>
+          
+        </div>
       </div>
-      
-      <div class="form-group">
-        <%= f.label :password, "Password" %>
-        <%= f.password_field :password, class: "form-control", placeholder: "••••••••", required: true %>
-      </div>
-      
-      <div class="form-actions">
-        <%= f.submit "Login", class: "btn btn-primary btn-block" %>
-      </div>
-    <% end %>
-    
-    <div class="auth-links">
-      <p>Don't have an account? <%= link_to "Sign up here", signup_path %></p>
     </div>
   </div>
 </div>

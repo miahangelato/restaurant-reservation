@@ -1,54 +1,39 @@
-<% content_for :title, "Reservation Details - Restaurant Reservation System" %>
+<% content_for :title, "Confirm Reservation - Restaurant Reservation System" %>
 
 <div class="container-fluid px-5 py-4">
   <div class="row">
     <div class="col-lg-8 mx-auto">
-      
-      <!-- Status Banner -->
-      <% if @reservation.status == 'confirmed' %>
-        <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-          <div class="card-body text-center text-white py-5">
-            <div class="mb-3">
-              <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-              </svg>
-            </div>
-            <h1 class="h3 fw-bold mb-2">Reservation Confirmed!</h1>
-            <p class="mb-0 opacity-75">We look forward to seeing you on <%= @reservation.formatted_date %> at <%= @reservation.formatted_time %>.</p>
-          </div>
+      <!-- Page Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h1 class="h3 mb-1">Confirm Your Reservation</h1>
+          <p class="text-muted mb-0">Please review your reservation details before finalizing</p>
         </div>
-      <% elsif @reservation.status == 'cancelled' %>
-        <div class="card border-0 shadow-sm mb-4 bg-danger">
-          <div class="card-body text-center text-white py-5">
-            <div class="mb-3">
-              <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
-              </svg>
-            </div>
-            <h1 class="h3 fw-bold mb-2">Reservation Cancelled</h1>
-            <p class="mb-0 opacity-75">This reservation has been cancelled.</p>
-          </div>
+        <div>
+          <%= link_to new_reservation_path, class: "btn btn-outline-secondary" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+            </svg>
+            Back to Edit
+          <% end %>
         </div>
-      <% end %>
+      </div>
 
-      <!-- Reservation Details Card -->
+      <!-- Confirmation Card -->
       <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-4">
-          <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="h5 mb-0">Reservation Details</h2>
-            <%= link_to reservations_path, class: "btn btn-outline-secondary btn-sm" do %>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
-              </svg>
-              Back to My Reservations
-            <% end %>
-          </div>
-
+          <h5 class="fw-bold mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="me-2 text-primary" viewBox="0 0 16 16">
+              <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+            </svg>
+            Reservation Details
+          </h5>
+          
           <div class="row g-4">
             <div class="col-md-6">
               <div class="d-flex align-items-start">
                 <div class="text-primary me-3 mt-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
                     <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
                   </svg>
                 </div>
@@ -62,14 +47,14 @@
             <div class="col-md-6">
               <div class="d-flex align-items-start">
                 <div class="text-primary me-3 mt-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
                     <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
                     <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
                   </svg>
                 </div>
                 <div>
                   <div class="text-muted small">Time</div>
-                  <div class="fw-semibold"><%= @reservation.formatted_time %></div>
+                  <div class="fw-semibold"><%= @time_slot.formatted_time %></div>
                 </div>
               </div>
             </div>
@@ -77,7 +62,7 @@
             <div class="col-md-6">
               <div class="d-flex align-items-start">
                 <div class="text-primary me-3 mt-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
                     <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
                     <path fill-rule="evenodd" d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"/>
                     <path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/>
@@ -93,18 +78,14 @@
             <div class="col-md-6">
               <div class="d-flex align-items-start">
                 <div class="text-primary me-3 mt-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
                     <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                    <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
+                    <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
                   </svg>
                 </div>
                 <div>
-                  <div class="text-muted small">Status</div>
-                  <div>
-                    <span class="badge bg-<%= @reservation.status == 'confirmed' ? 'success' : 'danger' %> px-3 py-2">
-                      <%= @reservation.status.titleize %>
-                    </span>
-                  </div>
+                  <div class="text-muted small">Time Slot Capacity</div>
+                  <div class="fw-semibold">Max <%= @time_slot.max_people_per_table %> people per reservation</div>
                 </div>
               </div>
             </div>
@@ -115,7 +96,12 @@
       <!-- Contact Information Card -->
       <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-4">
-          <h3 class="h5 mb-4">Contact Information</h3>
+          <h5 class="fw-bold mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="me-2 text-primary" viewBox="0 0 16 16">
+              <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+            </svg>
+            Contact Information
+          </h5>
           
           <div class="row g-3">
             <div class="col-12">
@@ -163,32 +149,37 @@
         </div>
       </div>
 
-      <!-- Cancellation Section -->
-      <% if @reservation.status == 'confirmed' %>
-        <% if current_user && (current_user == @reservation.user || current_user.admin?) %>
-          <% if @reservation.cancellable? %>
-            <div class="card border-0 bg-light">
-              <div class="card-body p-4 text-center">
-                <p class="mb-3 text-muted small">
-                  You can cancel this reservation until <%= (@reservation.reservation_datetime - (Rails.application.config.x.reservations.cancellation_cutoff_hours || 1).hours).strftime("%B %d, %Y at %I:%M %p") %>
-                </p>
-                <%= button_to "Cancel Reservation", cancel_reservation_path(@reservation), 
-                    method: :patch, 
-                    data: { turbo_confirm: "Are you sure you want to cancel this reservation? This action cannot be undone." },
-                    class: "btn btn-danger" %>
-              </div>
-            </div>
-          <% else %>
-            <div class="alert alert-warning">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="me-2" viewBox="0 0 16 16">
-                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
-              </svg>
-              This reservation cannot be cancelled. Cancellations must be made at least <%= Rails.application.config.x.reservations.cancellation_cutoff_hours %> hour(s) in advance.
-            </div>
-          <% end %>
-        <% end %>
-      <% end %>
+      <!-- Confirmation Actions -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4 text-center">
+          <h5 class="fw-bold mb-3">Ready to finalize your reservation?</h5>
+          <p class="text-muted mb-4">By confirming, you agree to our reservation policy and terms.</p>
+          
+          <div class="d-flex gap-3 justify-content-center">
+            <%= button_to "Confirm Reservation", finalize_reservations_path, method: :post, class: "btn btn-success btn-lg px-5" %>
+            <%= link_to "Back to Edit", new_reservation_path, class: "btn btn-outline-secondary btn-lg" %>
+          </div>
+        </div>
+      </div>
 
+      <!-- Policy Info -->
+      <div class="card border-0 bg-light mt-4">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="me-2" viewBox="0 0 16 16">
+              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+              <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+            </svg>
+            Reservation Policy
+          </h6>
+          <ul class="mb-0 small text-muted">
+            <li class="mb-2">Reservations must be made at least 2 hours in advance</li>
+            <li class="mb-2">You can cancel your reservation up to 2 hours before your scheduled time</li>
+            <li class="mb-2">Please arrive on time for your reservation</li>
+            <li>If you need to modify your reservation, please cancel and create a new one</li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
 </div>

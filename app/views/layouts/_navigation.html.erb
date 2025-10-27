@@ -1,32 +1,54 @@
-<nav class="navbar">
-  <div class="nav-container">
-    <div class="nav-brand">
-      <%= link_to "🍽️ Restaurant Reservation", root_path, class: "brand-link" %>
-    </div>
+<nav class="navbar navbar-expand-lg" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+  <div class="container-fluid px-5">
+    <%= link_to root_path, class: "navbar-brand fw-bold text-white" do %>
+      Restaurant Reservation
+    <% end %>
     
-    <div class="nav-menu">
-      <% if logged_in? %>
-        <% if current_user.admin? %>
-          <%= link_to "Dashboard", admin_dashboard_path, class: "nav-link" %>
-          <%= link_to "📅 Calendar", admin_time_slots_calendar_path, class: "nav-link", title: "Availability Calendar - View booking availability" %>
-          <%= link_to "📋 Schedule", admin_calendar_path, class: "nav-link", title: "Reservation Schedule - Manage existing bookings" %>
-          <%= link_to "Reservations", admin_reservations_path, class: "nav-link" %>
-          <%= link_to "Time Slots", admin_time_slots_path, class: "nav-link" %>
-          <%= link_to "Tables", admin_tables_path, class: "nav-link" %>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto align-items-center">
+        <% if logged_in? %>
+          <% if current_user.admin? %>
+            <li class="nav-item">
+              <%= link_to "Dashboard", admin_dashboard_path, class: "nav-link text-white" %>
+            </li>
+            <li class="nav-item">
+              <%= link_to "Calendar", admin_calendar_path, class: "nav-link text-white" %>
+            </li>
+            <li class="nav-item">
+              <%= link_to "Reservations", admin_reservations_path, class: "nav-link text-white" %>
+            </li>
+            <li class="nav-item">
+              <%= link_to "Time Slots", admin_time_slots_path, class: "nav-link text-white" %>
+            </li>
+          <% else %>
+            <li class="nav-item">
+              <%= link_to "My Reservations", reservations_path, class: "nav-link text-white" %>
+            </li>
+            <li class="nav-item">
+              <%= link_to "New Reservation", new_reservation_path, class: "nav-link text-white" %>
+            </li>
+            <li class="nav-item">
+              <%= link_to "View Calendar", calendar_reservations_path, class: "nav-link text-white" %>
+            </li>
+            <li class="nav-item">
+              <%= link_to "Logout", logout_path, method: :delete, class: "nav-link text-white", 
+                  data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to logout?" } %>
+            </li>
+          <% end %>
+          
         <% else %>
-          <%= link_to "My Reservations", reservations_path, class: "nav-link" %>
-          <%= link_to "New Reservation", new_reservation_path, class: "nav-link" %>
-          <%= link_to "Availability", availability_reservations_path, class: "nav-link" %>
+          <li class="nav-item">
+            <%= link_to "Login", login_path, class: "nav-link text-white" %>
+          </li>
+          <li class="nav-item ms-2">
+            <%= link_to "Sign Up", signup_path, class: "btn btn-warning btn-sm" %>
+          </li>
         <% end %>
-        
-        <div class="nav-user">
-          <span class="user-name">👤 <%= current_user.name %></span>
-          <%= button_to "Logout", logout_path, method: :delete, class: "btn btn-secondary btn-sm" %>
-        </div>
-      <% else %>
-        <%= link_to "Login", login_path, class: "btn btn-primary" %>
-        <%= link_to "Sign Up", signup_path, class: "btn btn-secondary" %>
-      <% end %>
+      </ul>
     </div>
   </div>
 </nav>

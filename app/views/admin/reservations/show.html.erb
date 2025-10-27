@@ -87,11 +87,20 @@
   </div>
 </div>
 
-<% if @reservation.status == 'confirmed' %>
-  <div class="admin-actions">
+<div class="admin-actions">
+  <% if @reservation.status == 'pending' %>
+    <%= button_to "Confirm This Reservation", confirm_admin_reservation_path(@reservation), 
+        method: :patch, 
+        data: { turbo_confirm: "Are you sure you want to confirm this reservation?" },
+        class: "btn btn-success" %>
     <%= button_to "Cancel This Reservation", admin_reservation_path(@reservation), 
         method: :delete, 
         data: { turbo_confirm: "Are you sure you want to cancel this reservation?" },
         class: "btn btn-danger" %>
-  </div>
-<% end %>
+  <% elsif @reservation.status == 'confirmed' %>
+    <%= button_to "Cancel This Reservation", admin_reservation_path(@reservation), 
+        method: :delete, 
+        data: { turbo_confirm: "Are you sure you want to cancel this reservation?" },
+        class: "btn btn-danger" %>
+  <% end %>
+</div>

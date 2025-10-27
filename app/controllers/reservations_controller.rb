@@ -1,16 +1,17 @@
 class ReservationsController < ApplicationController
   # Allow guest (anonymous) users to view the reservation creation form, create a reservation,
-  # and fetch availability/available tables via AJAX. Other reservation actions still require a logged-in user.
+  # and fetch availability via AJAX. Other reservation actions still require a logged-in user.
   # Allow guests to view the reservation creation form, create reservations,
   # fetch availability, and view a reservation via token link. Modification actions
   # (edit/update/destroy/cancel) still require a logged-in user.
-  before_action :require_login, except: [:new, :create, :available_tables, :availability, :show]
+  before_action :require_login, except: [:new, :create, :availability, :show]
   before_action :set_reservation, only: [:show, :edit, :update, :destroy, :cancel]
   before_action :authorize_reservation, only: [:show, :edit, :update, :destroy, :cancel]
   
   def index
-    @upcoming_reservations = current_user.reservations.upcoming
-    @past_reservations = current_user.reservations.past
+    @upcoming_reservations = current_user.reservations.upcoming.confirmed
+    @past_reservations = current_user.reservations.past.confirmed
+    # Don't show cancelled reservations at all
   end
   
   def show
@@ -32,6 +33,53 @@ class ReservationsController < ApplicationController
   def create
     # Build reservation without assuming a current_user (support guest bookings)
     @reservation = Reservation.new(reservation_params)
+    @reservation.user = current_user if current_user.present?
+    
+    # Validate the reservation first
+    if @reservation.valid?
+      # Store reservation data in session for confirmation
+      session[:pending_reservation] = {
+        time_slot_id: @reservation.time_slot_id,
+        reservation_date: @reservation.reservation_date,
+        num_people: @reservation.num_people,
+        contact_name: @reservation.contact_name,
+        contact_email: @reservation.contact_email,
+        contact_phone: @reservation.contact_phone,
+        user_id: current_user&.id
+      }
+      redirect_to confirm_reservations_path
+    else
+      load_availability_data
+      flash.now[:alert] = "Please correct the errors below."
+      render :new, status: :unprocessable_entity
+    end
+  end
+  
+  def confirm
+    # Load reservation data from session
+    pending_data = session[:pending_reservation]
+    unless pending_data
+      flash[:alert] = "No reservation data found. Please start over."
+      redirect_to new_reservation_path
+      return
+    end
+    
+    @reservation = Reservation.new(pending_data)
+    @reservation.user = current_user if current_user.present?
+    @time_slot = TimeSlot.find(@reservation.time_slot_id)
+  end
+  
+  def finalize
+    # Load reservation data from session
+    pending_data = session[:pending_reservation]
+    unless pending_data
+      flash[:alert] = "No reservation data found. Please start over."
+      redirect_to new_reservation_path
+      return
+    end
+    
+    # Build reservation without assuming a current_user (support guest bookings)
+    @reservation = Reservation.new(pending_data)
     @reservation.user = current_user if current_user.present?
     # If guest, prepare a token so we can include it in the confirmation email.
     guest_token = nil
@@ -57,6 +105,9 @@ class ReservationsController < ApplicationController
         end
       end
 
+      # Clear the session data
+      session.delete(:pending_reservation)
+      
       # For authenticated users, the model callback will enqueue the confirmation email.
       flash[:success] = "Reservation confirmed! We look forward to seeing you on #{@reservation.formatted_date} at #{@reservation.formatted_time}."
 
@@ -69,9 +120,8 @@ class ReservationsController < ApplicationController
         redirect_to reservation_path(@reservation)
       end
     else
-      load_availability_data
-      flash.now[:alert] = "There was an error creating your reservation."
-      render :new, status: :unprocessable_entity
+      flash[:alert] = "There was an error creating your reservation."
+      redirect_to confirm_reservations_path
     end
   end
   
@@ -149,6 +199,11 @@ class ReservationsController < ApplicationController
     @date = params[:date] ? Date.parse(params[:date]) : Date.today
     @time_slots = TimeSlot.ordered
     
+    # Filter time slots based on 2-hour rule for the selected date
+    @time_slots = @time_slots.select do |slot|
+      at_least_two_hours_ahead?(@date, slot)
+    end
+    
     @availability = @time_slots.map do |slot|
       # Respect both capacity and the 2-hour advance rule when reporting availability
       time_ok = at_least_two_hours_ahead?(@date, slot)
@@ -161,24 +216,6 @@ class ReservationsController < ApplicationController
         time_ok: time_ok
       }
     end
-  end
-  
-  def available_tables
-    date = Date.parse(params[:date])
-    time_slot_id = params[:time_slot_id]
-    num_people = params[:num_people].to_i
-    # If the requested slot is not at least 2 hours ahead, return no tables
-    time_slot = TimeSlot.find_by(id: time_slot_id)
-    unless time_slot && at_least_two_hours_ahead?(date, time_slot)
-      @available_tables = []
-      render partial: 'reservations/table_selection', locals: { available_tables: @available_tables } and return
-    end
-
-    @available_tables = Table.by_capacity(num_people)
-                              .select { |t| t.available_for_slot?(time_slot_id, date) }
-                              .sort_by(&:table_number)
-    
-    render partial: 'reservations/table_selection', locals: { available_tables: @available_tables }
   end
   
   def calendar
@@ -256,26 +293,35 @@ class ReservationsController < ApplicationController
     @min_date = Date.today
     @max_date = Date.today + 3.months
     
-    # Load available tables if date and time slot are selected
-    if @reservation.reservation_date.present? && @reservation.time_slot_id.present?
-      # Prevent loading tables for slots that violate the 2-hour rule
-      slot = TimeSlot.find_by(id: @reservation.time_slot_id)
-      if slot && at_least_two_hours_ahead?(@reservation.reservation_date, slot)
-        load_available_tables
-      else
-        @available_tables = []
+    # If a specific date is set, filter based on 2-hour rule and create availability data
+    if @reservation&.reservation_date.present?
+      @time_slot_availability = {}
+      
+      @time_slots.each do |slot|
+        is_future_valid = at_least_two_hours_ahead?(@reservation.reservation_date, slot)
+        available_tables = is_future_valid ? slot.available_tables_for_date(@reservation.reservation_date) : 0
+        
+        @time_slot_availability[slot.id] = {
+          slot: slot,
+          is_future_valid: is_future_valid,
+          available_tables: available_tables,
+          is_available: available_tables > 0 && is_future_valid,
+          is_fully_booked: available_tables == 0
+        }
       end
+      
+      # Keep all slots for display but filter for selection
+      @available_time_slots = @time_slots.select do |slot|
+        availability = @time_slot_availability[slot.id]
+        availability[:is_available]
+      end
+    else
+      @available_time_slots = @time_slots
     end
   end
   
-  def load_available_tables
-    @available_tables = Table.by_capacity(@reservation.num_people || 1)
-                              .select { |t| t.available_for_slot?(@reservation.time_slot_id, @reservation.reservation_date) }
-                              .sort_by(&:table_number)
-  end
-  
   def reservation_params
-    params.require(:reservation).permit(:time_slot_id, :reservation_date, :num_people, :contact_name, :contact_email, :contact_phone, :table_id)
+    params.require(:reservation).permit(:time_slot_id, :reservation_date, :num_people, :contact_name, :contact_email, :contact_phone)
   end
 
   # Returns true if the given date + time_slot is at least 2 hours in the future.

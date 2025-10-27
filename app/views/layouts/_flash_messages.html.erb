@@ -1,9 +1,9 @@
 <% if flash.any? %>
-  <div class="flash-messages">
+  <div style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; max-width: 500px; width: 90%;">
     <% flash.each do |type, message| %>
-      <div class="alert alert-<%= type == 'alert' ? 'danger' : type == 'success' ? 'success' : 'info' %>" role="alert">
+      <div class="alert alert-<%= type == 'alert' ? 'danger' : type == 'notice' ? 'success' : type == 'success' ? 'success' : 'info' %> alert-dismissible fade show" role="alert">
         <%= message %>
-        <button type="button" class="close-btn" onclick="this.parentElement.remove()">×</button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
     <% end %>
   </div>

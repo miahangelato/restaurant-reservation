@@ -1,5 +1,5 @@
 class Admin::ReservationsController < Admin::BaseController
-  before_action :set_reservation, only: [:show, :edit, :update, :destroy]
+  before_action :set_reservation, only: [:show, :edit, :update, :destroy, :confirm]
   
   def index
     @reservations = Reservation.includes(:user, :time_slot, :table).order(reservation_date: :desc, created_at: :desc)
@@ -64,6 +64,16 @@ class Admin::ReservationsController < Admin::BaseController
     @reservation.update(status: 'cancelled')
     flash[:success] = "Reservation cancelled successfully."
     redirect_to admin_reservations_path
+  end
+  
+  def confirm
+    if @reservation.status == 'pending'
+      @reservation.update(status: 'confirmed')
+      flash[:success] = "Reservation confirmed successfully."
+    else
+      flash[:alert] = "Only pending reservations can be confirmed."
+    end
+    redirect_to admin_reservation_path(@reservation)
   end
   
   private

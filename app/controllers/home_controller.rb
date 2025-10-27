@@ -6,6 +6,8 @@ class HomeController < ApplicationController
       else
         redirect_to reservations_path
       end
+    else
+      redirect_to login_path
     end
   end
 end

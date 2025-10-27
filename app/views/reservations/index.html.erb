@@ -1,71 +1,94 @@
 <% content_for :title, "My Reservations - Restaurant Reservation System" %>
 
-<div class="page-header">
-  <h1>My Reservations</h1>
-  <div class="header-buttons">
-    <%= link_to "📅 View Calendar", calendar_reservations_path, class: "btn btn-outline-secondary" %>
-    <%= link_to "Make New Reservation", new_reservation_path, class: "btn btn-primary" %>
-  </div>
-</div>
-
-<div class="reservations-section">
-  <h2>Upcoming Reservations</h2>
+<div class="container-fluid px-5 py-4">
+  <div class="mb-4">
+    <h2 class="h5 fw-semibold text-dark mb-3">Upcoming Reservations</h2>
   
-  <% if @upcoming_reservations.any? %>
-    <div class="reservations-grid">
-      <% @upcoming_reservations.each do |reservation| %>
-        <div class="reservation-card">
-          <div class="reservation-header">
-            <h3><%= reservation.formatted_date %></h3>
-            <span class="badge badge-<%= reservation.status %>"><%= reservation.status.titleize %></span>
+    <% if @upcoming_reservations.any? %>
+      <div class="row g-4">
+        <% @upcoming_reservations.each do |reservation| %>
+          <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm" style="transition: transform 0.2s; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+              <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div>
+                    <h3 class="h5 mb-1 fw-bold text-dark"><%= reservation.formatted_date %></h3>
+                    <p class="text-muted small mb-0"><%= reservation.formatted_time %></p>
+                  </div>
+                  <span class="badge rounded-pill bg-<%= reservation.status == 'confirmed' ? 'success' : 'danger' %> px-3 py-2"><%= reservation.status.titleize %></span>
+                </div>
+                
+                <hr class="my-3">
+                
+                <div class="mb-3">
+                  <div class="d-flex align-items-center mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="text-muted me-2" viewBox="0 0 16 16">
+                      <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                      <path fill-rule="evenodd" d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"/>
+                      <path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/>
+                    </svg>
+                    <span class="text-dark"><strong><%= reservation.num_people %></strong> people</span>
+                  </div>
+                  <div class="d-flex align-items-center mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="text-muted me-2" viewBox="0 0 16 16">
+                      <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+                    </svg>
+                    <span class="text-dark small"><%= reservation.contact_name %></span>
+                  </div>
+                  <div class="d-flex align-items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="text-muted me-2" viewBox="0 0 16 16">
+                      <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.482 8.062a1.745 1.745 0 0 1-.46-1.657l.548-2.19a.678.678 0 0 0-.122-.58L3.654 1.328zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511z"/>
+                    </svg>
+                    <span class="text-dark small"><%= reservation.contact_phone %></span>
+                  </div>
+                </div>
+                
+                <div class="d-flex gap-2 mt-3">
+                  <%= link_to "View Details", reservation_path(reservation), class: "btn btn-sm btn-outline-secondary flex-grow-1" %>
+                  
+                  <% if reservation.cancellable? %>
+                    <%= button_to "Cancel", cancel_reservation_path(reservation), method: :patch, 
+                        data: { turbo_confirm: "Are you sure you want to cancel this reservation?" }, 
+                        class: "btn btn-sm btn-outline-warning flex-grow-1" %>
+                  <% end %>
+                </div>
+              </div>
+            </div>
           </div>
-          
-          <div class="reservation-details">
-            <p><strong>Time:</strong> <%= reservation.formatted_time %></p>
-            <p><strong>Party Size:</strong> <%= reservation.num_people %> people</p>
-            <% if reservation.table %>
-              <p><strong>Table:</strong> <%= reservation.table.display_name %></p>
-            <% end %>
-            <p><strong>Contact:</strong> <%= reservation.contact_name %></p>
-            <p><strong>Phone:</strong> <%= reservation.contact_phone %></p>
-          </div>
-          
-          <div class="reservation-actions">
-            <%= link_to "View Details", reservation_path(reservation), class: "btn btn-sm btn-secondary" %>
-            
-            <% if reservation.cancellable? %>
-              <%= button_to "Cancel Reservation", cancel_reservation_path(reservation), method: :patch, 
-                  data: { turbo_confirm: "Are you sure you want to cancel this reservation?" }, 
-                  class: "btn btn-sm btn-danger" %>
-            <% else %>
-              <%# intentionally render nothing when the reservation is not cancellable to avoid duplicate View Details buttons %>
-            <% end %>
-          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="text-center py-5 bg-white rounded shadow-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="text-muted mb-3" viewBox="0 0 16 16">
+          <path d="M2 1a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm4 4h5v1H6V5zm-1 3h6v1H5V8z"/>
+        </svg>
+        <p class="text-muted mb-3">You don't have any upcoming reservations.</p>
+        <%= link_to "Make a Reservation", new_reservation_path, class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @past_reservations.any? %>
+    <div class="mt-5">
+      <h2 class="h5 fw-semibold text-dark mb-3">Past Reservations</h2>
+      
+      <div class="card border-0 shadow-sm">
+        <div class="list-group list-group-flush">
+          <% @past_reservations.each do |reservation| %>
+            <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+              <div>
+                <strong class="text-dark"><%= reservation.formatted_date %></strong> 
+                <span class="text-muted">at <%= reservation.formatted_time %></span>
+                <span class="mx-2">•</span>
+                <span class="text-muted"><%= reservation.num_people %> people</span>
+              </div>
+              <span class="badge bg-success px-3 py-2"><%= reservation.status.titleize %></span>
+            </div>
+          <% end %>
         </div>
-      <% end %>
-    </div>
-  <% else %>
-    <div class="empty-state">
-      <p>You don't have any upcoming reservations.</p>
-      <%= link_to "Make a Reservation", new_reservation_path, class: "btn btn-primary" %>
+      </div>
     </div>
   <% end %>
-</div>
 
-<% if @past_reservations.any? %>
-  <div class="reservations-section">
-    <h2>Past Reservations</h2>
-    
-    <div class="reservations-list">
-      <% @past_reservations.each do |reservation| %>
-        <div class="reservation-item">
-          <div class="reservation-summary">
-            <strong><%= reservation.formatted_date %></strong> at <%= reservation.formatted_time %>
-            - <%= reservation.num_people %> people
-            <span class="badge badge-<%= reservation.status %>"><%= reservation.status.titleize %></span>
-          </div>
-        </div>
-      <% end %>
-    </div>
-  </div>
-<% end %>
+
+</div>

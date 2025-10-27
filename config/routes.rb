@@ -15,7 +15,8 @@ Rails.application.routes.draw do
     collection do
       get :availability
       get :calendar
-      get :available_tables
+      get :confirm
+      post :finalize
     end
     member do
       patch :cancel
@@ -28,9 +29,12 @@ Rails.application.routes.draw do
     get "/calendar", to: "dashboard#calendar", as: :calendar
     get "/time-slots-calendar", to: "dashboard#time_slots_calendar", as: :time_slots_calendar
     
-    resources :reservations
+    resources :reservations do
+      member do
+        patch :confirm
+      end
+    end
     resources :time_slots
-    resources :tables
   end
   
   # Health check

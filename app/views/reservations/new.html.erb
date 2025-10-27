@@ -1,143 +1,178 @@
 <% content_for :title, "New Reservation - Restaurant Reservation System" %>
 
-<div class="page-header">
-  <h1>Make a Reservation</h1>
-  <div class="header-buttons">
-    <%= link_to "📅 View Calendar", calendar_reservations_path, class: "btn btn-outline-secondary" %>
-    <%= link_to "← Back to My Reservations", reservations_path, class: "btn btn-link" %>
-  </div>
-</div>
-
-<div class="reservation-form-container">
-  <% if current_user.nil? %>
-    <div class="alert alert-info py-3 px-3" role="status" aria-live="polite">
-      <div class="d-flex align-items-start gap-3">
-        <span class="badge rounded-pill bg-primary text-white mt-1" aria-hidden="true">i</span>
-        <div class="flex-grow-1">
-          <strong class="d-block">You're booking as a guest</strong>
-          <small class="text-muted">You'll get a one-time link by email to view this reservation. Guests cannot edit or cancel reservations.</small>
-          <small class="text-muted d-block">Please make sure to double check all the information before proceeding.</small>
-          <div class="mt-2">
-            <%= link_to 'Create account', signup_path, class: 'btn btn-sm btn-primary me-2' %>
-            <%= link_to 'Sign in', login_path, class: 'btn btn-sm btn-outline-secondary' %>
-          </div>
+<div class="container-fluid px-5 py-4">
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+      <!-- Page Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h1 class="h3 mb-1">Make a Reservation</h1>
+          <p class="text-muted mb-0">Reserve your table in a few simple steps</p>
         </div>
-
-        <!-- Dismiss button removed per design: guests should see the banner until they navigate away -->
-      </div>
-    </div>
-  <% end %>
-
-  <%= form_with model: @reservation, class: "reservation-form", data: { controller: "reservations", turbo: false } do |f| %>
-    <% if @reservation.errors.any? %>
-      <div class="alert alert-danger">
-        <h4><%= pluralize(@reservation.errors.count, "error") %> prevented this reservation from being saved:</h4>
-        <ul>
-          <% @reservation.errors.full_messages.each do |message| %>
-            <li><%= message %></li>
+        <div>
+          <%= link_to reservations_path, class: "btn btn-outline-secondary" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+            </svg>
+            Back to My Reservations
           <% end %>
-        </ul>
-      </div>
-    <% end %>
-    
-    <div class="form-row">
-      <div class="form-group col-md-6">
-        <%= f.label :reservation_date, "Date" %>
-        <%= f.date_field :reservation_date, 
-            class: "form-control", 
-            min: @min_date, 
-            max: @max_date,
-            required: true,
-            data: { action: "change->reservations#dateChanged", reservations_target: "dateField" } %>
-        <small class="form-text">Reservations must be made at least 2 hours in advance</small>
-      </div>
-      
-      <div class="form-group col-md-6">
-        <%= f.label :time_slot_id, "Time Slot" %>
-        <%= f.select :time_slot_id, 
-            options_from_collection_for_select(@time_slots, :id, :formatted_time, @reservation.time_slot_id),
-            { prompt: "Select a time" },
-            { class: "form-control", required: true, data: { action: "change->reservations#timeSlotChanged", reservations_target: "timeSlotField" } } %>
-      </div>
-    </div>
-    
-    <div class="form-group">
-      <%= f.label :num_people, "Number of People" %>
-      <%= f.number_field :num_people, 
-          class: "form-control", 
-          min: 1, 
-          placeholder: "How many people?",
-          required: true,
-          data: { action: "change->reservations#numPeopleChanged", reservations_target: "numPeopleField" } %>
-    </div>
-    
-    <% if @reservation.reservation_date.present? && @reservation.time_slot_id.present? %>
-      <div class="form-section-title">
-        <h3>Choose Your Table</h3>
-        <p class="text-muted">Select from available tables that can accommodate your party size</p>
-      </div>
-      
-      <div data-reservations-target="tableSelection">
-        <% if @available_tables.present? %>
-          <%= render partial: 'table_selection', locals: { available_tables: @available_tables } %>
-        <% else %>
-          <div class="alert alert-warning">
-            <strong>No tables available</strong> for your selected date and time. Please try a different time slot or date.
-          </div>
-        <% end %>
-      </div>
-    <% else %>
-      <div data-reservations-target="tableSelection">
-        <div class="table-selection-placeholder">
-          <p class="text-muted">💡 Select a date and time above to see available tables</p>
         </div>
       </div>
-    <% end %>
-    
-    <div class="form-section-title">
-      <h3>Contact Information</h3>
-      <p class="text-muted">This information will be used to contact you about your reservation</p>
-    </div>
-    
-    <div class="form-group">
-      <%= f.label :contact_name, "Full Name" %>
-      <%= f.text_field :contact_name, 
-          class: "form-control", 
-          value: current_user&.name,
-          required: true %>
-    </div>
-    
-    <div class="form-row">
-  <div class="form-group col-md-6">
-    <%= f.label :contact_email, "Email" %>
-    <%= f.email_field :contact_email, 
-    class: "form-control", 
-    value: current_user&.email,
-    required: true %>
-  </div>
-      
-  <div class="form-group col-md-6">
-    <%= f.label :contact_phone, "Phone Number" %>
-    <%= f.text_field :contact_phone, 
-    class: "form-control", 
-    value: current_user&.phone,
-    required: true %>
-  </div>
-    </div>
-    
-    <div class="form-actions">
-      <%= f.submit "Confirm Reservation", class: "btn btn-primary btn-lg" %>
-      <%= link_to "Cancel", reservations_path, class: "btn btn-link" %>
-    </div>
-  <% end %>
-</div>
 
-<div class="info-box">
-  <h4>📋 Reservation Policy</h4>
-  <ul>
-    <li>Reservations must be made at least 2 hours in advance</li>
-    <li>You can cancel your reservation up to 2 hours before your scheduled time</li>
-    <li>Please arrive on time for your reservation</li>
-    <li>If you need to modify your reservation, please cancel and create a new one</li>
-  </ul>
+      <!-- Form Card -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+          <%= form_with model: @reservation, class: "needs-validation", data: { controller: "reservations", turbo: false }, novalidate: true do |f| %>
+            <% if @reservation.errors.any? %>
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong><%= pluralize(@reservation.errors.count, "error") %> prevented this reservation from being saved:</strong>
+                <ul class="mb-0 mt-2">
+                  <% @reservation.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            <% end %>
+            
+            <!-- Step 1: Date & Time -->
+            <div class="mb-4">
+              <h5 class="border-bottom pb-2 mb-3">1. Select Date & Time</h5>
+              
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="reservation_reservation_date" class="form-label fw-semibold">Date</label>
+                  <%= f.date_field :reservation_date, 
+                      class: "form-control form-control-lg", 
+                      min: @min_date, 
+                      max: @max_date,
+                      required: true,
+                      data: { action: "change->reservations#dateChanged", reservations_target: "dateField" } %>
+                  <div class="form-text">Reservations must be made at least 2 hours in advance</div>
+                </div>
+                
+                <div class="col-md-6">
+                  <label for="reservation_time_slot_id" class="form-label fw-semibold">Time Slot</label>
+                  <% if @time_slot_availability.present? %>
+                    <select name="reservation[time_slot_id]" id="reservation_time_slot_id" class="form-select form-select-lg" required data-action="change->reservations#timeSlotChanged" data-reservations-target="timeSlotField">
+                      <option value="">Select a time</option>
+                      <% @time_slots.each do |slot| %>
+                        <% availability = @time_slot_availability[slot.id] %>
+                        <% if availability[:is_available] %>
+                          <option value="<%= slot.id %>" <%= 'selected' if @reservation.time_slot_id == slot.id %>>
+                            <%= slot.formatted_time %> (max <%= slot.max_people_per_table %> people)
+                          </option>
+                        <% else %>
+                          <option value="" disabled style="text-decoration: line-through; color: #6c757d;">
+                            <%= slot.formatted_time %> 
+                            <% if !availability[:is_future_valid] %>
+                              (too soon - 2hr rule)
+                            <% elsif availability[:is_fully_booked] %>
+                              (fully booked)
+                            <% else %>
+                              (unavailable)
+                            <% end %>
+                          </option>
+                        <% end %>
+                      <% end %>
+                    </select>
+                  <% else %>
+                    <%= f.select :time_slot_id, 
+                        options_from_collection_for_select(@available_time_slots || @time_slots, :id, 
+                          lambda { |slot| "#{slot.formatted_time} (max #{slot.max_people_per_table} people)" }, 
+                          @reservation.time_slot_id),
+                        { prompt: "Select a time" },
+                        { class: "form-select form-select-lg", required: true, data: { action: "change->reservations#timeSlotChanged", reservations_target: "timeSlotField" } } %>
+                  <% end %>
+                </div>
+              </div>
+              
+              <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                  <label for="reservation_num_people" class="form-label fw-semibold">Number of People</label>
+                  <%= f.number_field :num_people, 
+                      class: "form-control form-control-lg", 
+                      min: 1, 
+                      placeholder: "How many people?",
+                      required: true,
+                      data: { action: "change->reservations#numPeopleChanged", reservations_target: "numPeopleField" } %>
+                  <% if @reservation.time_slot_id.present? %>
+                    <% selected_slot = @time_slots.find { |ts| ts.id == @reservation.time_slot_id.to_i } %>
+                    <% if selected_slot %>
+                      <div class="form-text">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                          <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                        </svg>
+                        Maximum <%= selected_slot.max_people_per_table %> people per table for this time slot
+                      </div>
+                    <% end %>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Step 2: Contact Information -->
+            <div class="mb-4">
+              <h5 class="border-bottom pb-2 mb-3">2. Contact Information</h5>
+              
+              <div class="row g-3">
+                <div class="col-12">
+                  <label for="reservation_contact_name" class="form-label fw-semibold">Full Name</label>
+                  <%= f.text_field :contact_name, 
+                      class: "form-control", 
+                      value: current_user&.name,
+                      placeholder: "John Doe",
+                      required: true %>
+                </div>
+                
+                <div class="col-md-6">
+                  <label for="reservation_contact_email" class="form-label fw-semibold">Email</label>
+                  <%= f.email_field :contact_email, 
+                      class: "form-control", 
+                      value: current_user&.email,
+                      placeholder: "john@example.com",
+                      required: true %>
+                </div>
+                
+                <div class="col-md-6">
+                  <label for="reservation_contact_phone" class="form-label fw-semibold">Phone Number</label>
+                  <%= f.text_field :contact_phone, 
+                      class: "form-control", 
+                      value: current_user&.phone,
+                      placeholder: "+1 234 567 8900",
+                      required: true %>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Submit Actions -->
+            <div class="d-flex gap-3 pt-3 border-top">
+              <%= f.submit "Review & Confirm", class: "btn btn-primary btn-lg px-5" %>
+              <%= link_to "Cancel", reservations_path, class: "btn btn-outline-secondary" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Policy Info -->
+      <div class="card border-0 bg-light mt-4">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="me-2" viewBox="0 0 16 16">
+              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+              <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+            </svg>
+            Reservation Policy
+          </h6>
+          <ul class="mb-0 small text-muted">
+            <li class="mb-2">Reservations must be made at least 2 hours in advance</li>
+            <li class="mb-2">You can cancel your reservation up to 2 hours before your scheduled time</li>
+            <li class="mb-2">Please arrive on time for your reservation</li>
+            <li>If you need to modify your reservation, please cancel and create a new one</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
