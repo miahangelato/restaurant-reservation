@@ -66,11 +66,11 @@ Rails.application.configure do
   
   # Gmail SMTP configuration
   config.action_mailer.smtp_settings = {
-    address: 'smtp.gmail.com',
-    port: 587,
-    domain: 'restaurant-reservation-qou8.onrender.com',
-    user_name: ENV['GMAIL_USERNAME'],
-    password: ENV['GMAIL_PASSWORD'],
+    address: ENV['SMTP_ADDRESS'] || 'smtp.gmail.com',
+    port: ENV['SMTP_PORT'] || 587,
+    domain: ENV['SMTP_DOMAIN'] || 'restaurant-reservation-qou8.onrender.com',
+    user_name: ENV['SMTP_USERNAME'],
+    password: ENV['SMTP_PASSWORD'],
     authentication: 'plain',
     enable_starttls_auto: true
   }
