@@ -79,7 +79,19 @@ class Reservation < ApplicationRecord
     recipient = contact_email.presence || user&.email
     return unless recipient.present?
 
-    ReservationMailer.with(reservation: self).confirmation_email.deliver_now
+    # Check if email delivery is enabled
+    unless Rails.application.config.action_mailer.perform_deliveries
+      Rails.logger.info "Email delivery disabled - skipping confirmation email for reservation #{id}"
+      return
+    end
+
+    begin
+      ReservationMailer.with(reservation: self).confirmation_email.deliver_now
+      Rails.logger.info "Confirmation email sent successfully for reservation #{id}"
+    rescue Net::SMTPError, Net::OpenTimeout, Net::ReadTimeout, Errno::ECONNREFUSED => e
+      Rails.logger.error "Failed to send confirmation email for reservation #{id}: #{e.message}"
+      # Don't re-raise the error - we don't want email failures to break reservation creation
+    end
   end
 
   # Prepare a guest access token and store its digest and expiry on the reservation record.

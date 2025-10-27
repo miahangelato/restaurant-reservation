@@ -59,12 +59,12 @@ Rails.application.configure do
   # Set host to be used by links generated in mailer templates.
   config.action_mailer.default_url_options = { host: "restaurant-reservation-qou8.onrender.com" }
   
-  # Enable email delivery in production
-  config.action_mailer.perform_deliveries = true
-  config.action_mailer.raise_delivery_errors = true
+  # Enable email delivery in production (can be disabled via ENV)
+  config.action_mailer.perform_deliveries = ENV.fetch('ENABLE_EMAIL_DELIVERY', 'true') == 'true'
+  config.action_mailer.raise_delivery_errors = false
   config.action_mailer.delivery_method = :smtp
   
-  # Gmail SMTP configuration
+  # Gmail SMTP configuration with timeouts
   config.action_mailer.smtp_settings = {
     address: ENV['SMTP_ADDRESS'] || 'smtp.gmail.com',
     port: ENV['SMTP_PORT'] || 587,
@@ -72,7 +72,9 @@ Rails.application.configure do
     user_name: ENV['SMTP_USERNAME'],
     password: ENV['SMTP_PASSWORD'],
     authentication: 'plain',
-    enable_starttls_auto: true
+    enable_starttls_auto: true,
+    open_timeout: 10,
+    read_timeout: 10
   }
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
